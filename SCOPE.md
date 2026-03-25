@@ -7,6 +7,12 @@
 # Kern
 Sotchi hilft Nutzern dabei, ihren lebenden oder gerade entstehenden Sauerteig-Starter am Leben zu erhalten. Die daraus entstehenden Meisterwerke können verewigt & geteilt werden.
 
+# Entity Relationship Diagram
+![ER](src/main/resources/ER.jpg)
+
+# Relational Model
+![ER](src/main/resources/RM.jpg)
+
 ## Features (MVP)
 - User können einen / mehrere Sauerteige anlegen (Profil) und customizen
 - User können eine Bake-History anlegen und die gebackenen Brote mit den verwendeten Sauerteigen verknüpfen
