@@ -1,40 +1,92 @@
-# backend
+# Hard Facts
+- **Working Title:** Sour-Otchi
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+# Vision
+> My sourdough not only lives in the **fridge**, but also on my **phone**
 
-Here are some useful links to get you started:
+# Kern
+Sotchi hilft Nutzern dabei, ihren lebenden oder gerade entstehenden Sauerteig-Starter am Leben zu erhalten. Die daraus entstehenden Meisterwerke können verewigt & geteilt werden.
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+# Entity Relationship Diagram
+![ER](src/main/resources/ER.jpg)
 
-## Features
+# Relational Model
+![ER](src/main/resources/RM.jpg)
 
-Here's a list of features included in this project:
+## Features (MVP)
+- User können einen / mehrere Sauerteige anlegen (Profil) und customizen
+- User können eine Bake-History anlegen und die gebackenen Brote mit den verwendeten Sauerteigen verknüpfen
+- Gamification > der Sauerteig als virtuelles Haustier
+- User werden benachrichtigt bei wichtigen Sauerteig-bezogenen Events
 
-| Name                                       | Description                        |
-| --------------------------------------------|------------------------------------ |
-| [Routing](https://start.ktor.io/p/routing) | Provides a structured routing DSL  |
-| [Swagger](https://start.ktor.io/p/swagger) | Serves Swagger UI for your project |
+## Gamification - Sauerteig als virtuelles Haustier
+### Echtzeit Mechanik
+- Der Starter hat einen "Hunger Countdown" > Abhängigkeit von Lagerung (Kühlschrank / Raumtemperatur)
+- Timer läuft real mit
 
-## Building & Running
+Dadurch können sich diverse Zustandsanzeigen in der App ergeben:
+- Fit & aktiv
+- Hungrig
+- Schwach
+- Übersäuert
+- Tot
 
-To build or run the project, use one of the following tasks:
+### Füttern als Kernmechanik
+- In der App auf "gefüttert" klicken
+- Eingabe von Fütterungswerten:
+    - Verhältnis Wasser / Mehl
+    - Mehlsorte
+    - Temperatur
 
-| Task                                    | Description                                                          |
-| -----------------------------------------|---------------------------------------------------------------------- |
-| `./gradlew test`                        | Run the tests                                                        |
-| `./gradlew build`                       | Build everything                                                     |
-| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `./gradlew run`                         | Run the server                                                       |
-| `./gradlew runDocker`                   | Run using the local docker image                                     |
+**In der App**
+- Entwicklung wird simuliert (Dein Sauerteig könnte fertig gefüttert sein)
+- Gibt Feedback je nach Mehl ("Wow, ich liebe Roggen!")
 
-If the server starts successfully, you'll see the following output:
+### Entwicklungsstufen / Progression
+Jedes gebackene Brot ist eine neue Entwicklungsstufe.
 
-```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
-```
+### Persönlichkeit & Bindung
+Der Sauerteig erhält über das Profil folgende Themen:
+- Name
+- Avatar
+- Aufbewahrungsbehältnis
+- Mehltyp / Sorte
+- Alter
 
+Mit der Zeit können dann auch noch eigene Charakterzüge hinzukommen, wie z.B.:
+- Temperamentvoll
+- Leicht säuerlich
+- Träge im Winter
+
+### Konsequenzen
+Der Sauerteig durchläuft je nach Fütterungskonsistenz verschiedene Zustände, z.B.:
+- Phase 1: "Mir geht es nicht so gut..."
+- Phase 2: "Ich fühle mich schwach..."
+- Phase 3: "Ich glaube, ich kippe gleich..."
+- Phase 4: App schlägt Rettungsplan vor ("Handle jetzt und füttere, sonst wird er ggfs. sterben)
+
+### Achievement-System
+> Ausbaustufe: Wichtig hier dann aber mit Social-Share-Möglichkeit
+- 7 Tage am Stück gefüttert
+- 30 Tage ohne Tod
+- 5 Brote gebacken
+- Winter überlebt
+- 3 Mehlsorten getestet
+
+---
+### Bake-History Features
+> Brot-Tagebuch
+- Hinterlegung von Informationen
+    - Wurde gebacken auf Stein, im Römertopf, im Gusseisen Topf,...
+    - Taste Rating
+    - Individuelle Notizen
+    - Verwendeter Sauerteig
+    - Verwendete Mehlsorten / Typen / Marken
+    - Quelle des Rezepts (z.B. Buch XYZ Seite 3.) -> Ziel: Nach 3 Jahren reinschauen und genau wissen: Das will ich backen, hier finde ich das Rezept
+    - Anlass des Backens (Geburtstag, täglicher Gebrauch,...)
+- Teilen auf Social Media
+- Filterung nach Kategorien (zeige mir meine Rezepte nur nach Mehlsorte)
+
+### Notification Feature
+- Sauerteig muss gefüttert werden
+- Auf Basis von Gamification Events
