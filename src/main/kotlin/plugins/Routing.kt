@@ -1,0 +1,36 @@
+package app.sotchi.plugins
+
+import app.sotchi.controller.routes.*
+import app.sotchi.repository.SourdoughRepositoryImpl
+import app.sotchi.repository.UserRepositoryImpl
+import app.sotchi.service.SourdoughService
+import io.ktor.http.*
+import io.ktor.openapi.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.swagger.*
+import io.ktor.server.routing.*
+import io.ktor.server.routing.openapi.*
+
+fun Application.configureRouting() {
+    routing {
+        val sourdoughRepository = SourdoughRepositoryImpl()
+        val userRepository = UserRepositoryImpl()
+        val sourdoughService = SourdoughService(
+            sourdoughRepository = sourdoughRepository,
+            userRepository = userRepository,
+        )
+        route("/api/v1") {
+            healthRouteV1()
+            userRoutesV1()
+            genericRoutesV1()
+            sourdoughRoutesV1(sourdoughService)
+        }
+        swaggerUI("/swagger") {
+            info = OpenApiInfo("SOTCHI - Sourdough API", "0.1")
+            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+                routingRoot.descendants()
+            }
+        }
+    }
+}
+
