@@ -4,6 +4,7 @@ import app.sotchi.controller.routes.*
 import app.sotchi.repository.SourdoughRepositoryImpl
 import app.sotchi.repository.UserRepositoryImpl
 import app.sotchi.service.SourdoughService
+import app.sotchi.service.UserService
 import io.ktor.http.*
 import io.ktor.openapi.*
 import io.ktor.server.application.*
@@ -19,9 +20,14 @@ fun Application.configureRouting() {
             sourdoughRepository = sourdoughRepository,
             userRepository = userRepository,
         )
+
+        val userService = UserService(
+            userRepository = userRepository,
+        )
+
         route("/api/v1") {
             healthRouteV1()
-            userRoutesV1()
+            userRoutesV1(userService)
             genericRoutesV1()
             sourdoughRoutesV1(sourdoughService)
         }

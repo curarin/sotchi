@@ -1,32 +1,46 @@
 package app.sotchi.repository
 
 import app.sotchi.domain.user.UserEntity
+import app.sotchi.dto.user.UserCreateDTO
 import kotlinx.datetime.Clock
-import java.util.concurrent.atomic.AtomicInteger
 
 class UserRepositoryImpl : UserRepository {
-    private val users = mutableListOf<UserEntity>()
-    private val idGenerator = AtomicInteger(1)
-    override fun findById(id: Int): UserEntity {
+    private val users = mutableMapOf<Int, UserEntity>()
+    private var nextId = 1
+
+    override fun findById(id: Int): UserEntity? = users[id]
+    override fun findByEmail(email: String): UserEntity? =
+        users.values.firstOrNull { it.email.equals(email, ignoreCase = true) }
+
+    override fun create(dto: UserCreateDTO): UserEntity {
+        val currentDateTime = Clock.System.now()
         val user = UserEntity(
-            id = idGenerator.getAndIncrement(),
-            name = "User 1",
-            email = "test@mail.com",
-            createdAtDt = Clock.System.now(),
-            lastModifiedDt = Clock.System.now()
+            id = nextId++,
+            name = dto.name,
+            email = dto.email,
+            createdAtDt = currentDateTime,
+            lastModifiedDt = currentDateTime
         )
+        users[user.id] = user
         return user
     }
 
-    override fun findByEmail(email: String): UserEntity? {
-        TODO("Not yet implemented")
+    override fun update(
+        id: Int,
+        name: String?,
+        email: String?
+    ): UserEntity? {
+        val existingUser = users[id] ?: return null
+
+        val updatedUser = existingUser.copy(
+            name = name ?: existingUser.name,
+            email = email ?: existingUser.email,
+            lastModifiedDt = Clock.System.now()
+        )
+
+        users[id] = updatedUser
+        return updatedUser
     }
 
-    override fun save(user: UserEntity): UserEntity {
-        TODO("Not yet implemented")
-    }
-
-    override fun deleteById(id: Int) {
-        TODO("Not yet implemented")
-    }
+    override fun delete(id: Int): Boolean = users.remove(id) != null
 }

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SourdoughEntity(
     val id: Int? = null,
-    val user: UserEntity,
+    val user: UserEntity? = null,
     val feedState: SourdoughFeedStateEntity,
     val flourType: FlourTypeEntity,
     val sourdoughName: String,

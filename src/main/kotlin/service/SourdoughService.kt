@@ -2,11 +2,13 @@ package app.sotchi.service
 
 import app.sotchi.domain.sourdough.SourdoughEntity
 import app.sotchi.domain.sourdough.SourdoughFeedStateEntity
+import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.sourdough.CreateSourdoughDTO
 import app.sotchi.dto.sourdough.DeleteSourdoughDTO
 import app.sotchi.repository.SourdoughRepository
 import app.sotchi.repository.UserRepository
 import kotlinx.datetime.*
+import kotlin.jvm.Throws
 
 class SourdoughService(
     private val sourdoughRepository: SourdoughRepository,
@@ -15,11 +17,11 @@ class SourdoughService(
     /**
      * Business logic for: User creates a new sourdough.
      */
-    fun createSourdough(dto: CreateSourdoughDTO): SourdoughEntity {
+    fun createSourdough(dto: CreateSourdoughDTO, userId: Int): SourdoughEntity {
         val newSourdoughFeedState = SourdoughFeedStateEntity.FED
         val currentDateTime = Clock.System.now()
         val newSourdoughEntity = SourdoughEntity(
-            user = userRepository.findById(dto.userId),
+            user = userRepository.findById(userId),
             flourType = dto.flourType,
             feedState = newSourdoughFeedState,
             sourdoughName = dto.name,

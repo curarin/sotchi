@@ -7,7 +7,6 @@ import kotlinx.datetime.*
 @Serializable
 data class CreateSourdoughDTO(
     val name: String,
-    val userId: Int,
     val lastTimeFedDt: Instant,
     val flourType: FlourTypeEntity
 )

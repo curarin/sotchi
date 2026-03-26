@@ -1,36 +1,55 @@
 package app.sotchi.service
 
+import app.sotchi.domain.sourdough.SourdoughEntity
 import app.sotchi.domain.user.UserEntity
+import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.repository.UserRepository
 
 class UserService(
     private val userRepository: UserRepository
 ) {
+
     /**
-     * Registers a new user.
+     * User creates a new account.
      */
-    fun register(user: UserEntity): UserEntity {
-        return userRepository.save(user)
+    fun create(dto: UserCreateDTO): UserEntity {
+        return userRepository.create(dto)
+    }
+
+
+    /**
+     * User logs into their account.
+     */
+    fun login(email: String): UserEntity? {
+        return userRepository.findByEmail(email)
     }
 
     /**
-     * Logins an existing user.
+     * User modifies their account.
      */
-    fun login(email: String, password: String): Boolean {
-        val user = userRepository.findByEmail(email)
-        return user != null
+    fun modifyUser(
+        userId: Int,
+        name: String?,
+        email: String?
+    ): UserEntity? {
+        return userRepository.update(
+            id = userId,
+            name = name,
+            email = email
+        )
     }
 
     /**
-     * Deletes an existing user.
+     * User deletes their account.
      */
-    fun delete(id: Int): Boolean {
-        val user = userRepository.findById(id)
-        if (user != null) {
-            userRepository.deleteById(id)
-            return true
-        } else {
-            return false
-        }
+    fun deleteUser(userId: Int): Boolean {
+        return userRepository.delete(userId)
+    }
+
+    /**
+     * Find a user by their ID.
+     */
+    fun getUserById(userId: Int): UserEntity? {
+        return userRepository.findById(userId)
     }
 }
