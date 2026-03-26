@@ -5,6 +5,9 @@ import io.ktor.resources.Resource
 // We want type safe routing, so we do https://ktor.io/docs/server-resources.html
 @Resource("/user/auth")
 class UserAuth() {
+    @Resource("get")
+    class Read(val parent: UserAuth = UserAuth())
+
     @Resource("create")
     class Create(val parent: UserAuth = UserAuth())
 

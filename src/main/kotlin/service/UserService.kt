@@ -1,8 +1,11 @@
 package app.sotchi.service
 
 import app.sotchi.domain.exception.EmailAlreadyInUseException
+import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.UserCreateDTO
+import app.sotchi.dto.user.UserLoginDTO
+import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
 
@@ -14,11 +17,13 @@ class UserService(
      * User creates a new account.
      */
     fun create(dto: UserCreateDTO): UserEntity {
-        // Check if user already exists
-        if (dto.email.equals(userRepository.findByEmail(dto.email))) {
+        // ToDo: Bessere Implementierung als diese Yolo Catch der Exception - die Abhängigkeit will ich eig nicht.
+        try {
+            val existingUser = userRepository.findByEmail(dto.email)
             throw EmailAlreadyInUseException()
+        } catch (exception: UserNotFoundException) {
+            return userRepository.create(dto)
         }
-        return userRepository.create(dto)
     }
 
     /**
@@ -47,10 +52,18 @@ class UserService(
         return userRepository.delete(userId)
     }
 
+
     /**
-     * Find a user by their email address.
+     * Login an existing user.
      */
-    fun findByEmail(email: String): UserEntity {
-        return userRepository.findByEmail(email)
+    fun login(dto: UserLoginDTO): UserEntity {
+        return userRepository.findByEmail(dto.email)
+    }
+
+    /**
+     * Reads data from an existing account.
+     */
+    fun read(dto: UserReadDTO): UserEntity {
+        return userRepository.read(dto)
     }
 }

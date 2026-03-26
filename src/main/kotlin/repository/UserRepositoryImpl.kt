@@ -3,6 +3,8 @@ package app.sotchi.repository
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.UserCreateDTO
+import app.sotchi.dto.user.UserLoginDTO
+import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import kotlinx.datetime.Clock
 
@@ -16,6 +18,15 @@ class UserRepositoryImpl : UserRepository {
 
     override fun findByEmail(email: String): UserEntity {
         return users.values.firstOrNull { it.email.equals(email, ignoreCase = true) } ?: throw UserNotFoundException()
+    }
+
+    override fun login(dto: UserLoginDTO): UserEntity {
+        val loggedInUser = findByEmail(dto.email)
+        return loggedInUser
+    }
+
+    override fun read(dto: UserReadDTO): UserEntity {
+        return findById(dto.id)
     }
 
     override fun create(dto: UserCreateDTO): UserEntity {
