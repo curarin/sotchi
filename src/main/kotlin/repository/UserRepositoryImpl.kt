@@ -1,16 +1,22 @@
 package app.sotchi.repository
 
+import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.UserCreateDTO
+import app.sotchi.dto.user.UserUpdateDTO
 import kotlinx.datetime.Clock
 
 class UserRepositoryImpl : UserRepository {
     private val users = mutableMapOf<Int, UserEntity>()
     private var nextId = 1
 
-    override fun findById(id: Int): UserEntity? = users[id]
-    override fun findByEmail(email: String): UserEntity? =
-        users.values.firstOrNull { it.email.equals(email, ignoreCase = true) }
+    override fun findById(id: Int): UserEntity {
+        return users[id] ?: throw UserNotFoundException()
+    }
+
+    override fun findByEmail(email: String): UserEntity {
+        return users.values.firstOrNull { it.email.equals(email, ignoreCase = true) } ?: throw UserNotFoundException()
+    }
 
     override fun create(dto: UserCreateDTO): UserEntity {
         val currentDateTime = Clock.System.now()
@@ -25,16 +31,12 @@ class UserRepositoryImpl : UserRepository {
         return user
     }
 
-    override fun update(
-        id: Int,
-        name: String?,
-        email: String?
-    ): UserEntity? {
-        val existingUser = users[id] ?: return null
+    override fun update(id: Int, dto: UserUpdateDTO): UserEntity {
+        val existingUser = users[id] ?: throw UserNotFoundException()
 
         val updatedUser = existingUser.copy(
-            name = name ?: existingUser.name,
-            email = email ?: existingUser.email,
+            name = dto.name ?: existingUser.name,
+            email = dto.email ?: existingUser.email,
             lastModifiedDt = Clock.System.now()
         )
 
@@ -42,5 +44,8 @@ class UserRepositoryImpl : UserRepository {
         return updatedUser
     }
 
-    override fun delete(id: Int): Boolean = users.remove(id) != null
+    override fun delete(id: Int): Boolean {
+        val existingUser = users[id] ?: throw UserNotFoundException()
+        return users.remove(existingUser.id) != null
+    }
 }

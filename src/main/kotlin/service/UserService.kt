@@ -1,8 +1,9 @@
 package app.sotchi.service
 
-import app.sotchi.domain.sourdough.SourdoughEntity
+import app.sotchi.domain.exception.EmailAlreadyInUseException
 import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.UserCreateDTO
+import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
 
 class UserService(
@@ -13,43 +14,43 @@ class UserService(
      * User creates a new account.
      */
     fun create(dto: UserCreateDTO): UserEntity {
+        // Check if user already exists
+        if (dto.email.equals(userRepository.findByEmail(dto.email))) {
+            throw EmailAlreadyInUseException()
+        }
         return userRepository.create(dto)
-    }
-
-
-    /**
-     * User logs into their account.
-     */
-    fun login(email: String): UserEntity? {
-        return userRepository.findByEmail(email)
     }
 
     /**
      * User modifies their account.
      */
-    fun modifyUser(
-        userId: Int,
-        name: String?,
-        email: String?
-    ): UserEntity? {
+    fun update(userId: Int, dto: UserUpdateDTO): UserEntity {
+        val existingUser = userRepository.findById(userId)
+
+        if (
+            dto.email != null &&
+            dto.email != existingUser.email
+        ) {
+            throw EmailAlreadyInUseException()
+        }
+
         return userRepository.update(
             id = userId,
-            name = name,
-            email = email
+            dto = dto
         )
     }
 
     /**
      * User deletes their account.
      */
-    fun deleteUser(userId: Int): Boolean {
+    fun delete(userId: Int): Boolean {
         return userRepository.delete(userId)
     }
 
     /**
-     * Find a user by their ID.
+     * Find a user by their email address.
      */
-    fun getUserById(userId: Int): UserEntity? {
-        return userRepository.findById(userId)
+    fun findByEmail(email: String): UserEntity? {
+        return userRepository.findByEmail(email)
     }
 }

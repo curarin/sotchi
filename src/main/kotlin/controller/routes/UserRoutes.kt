@@ -1,8 +1,13 @@
 package app.sotchi.controller.routes
 
 import app.sotchi.controller.resources.UserAuth
+import app.sotchi.domain.exception.EmailAlreadyInUseException
+import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.dto.user.UserCreateDTO
+import app.sotchi.dto.user.UserLoginDTO
+import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.service.UserService
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
@@ -15,29 +20,53 @@ fun Route.userRoutesV1(userService: UserService) {
      */
     post<UserAuth.Create> {
         val user = call.receive<UserCreateDTO>()
-        val createdUser = userService.create(user)
-        call.respond(
-            createdUser
-        )
+        try {
+            val createdUser = userService.create(user)
+            call.respond(HttpStatusCode.Created, createdUser)
+        } catch (exception: Exception) {
+            call.respond(HttpStatusCode.Conflict, exception.message ?: "Oops. Something went wrong...")
+        }
+
+
     }
     /**
      * Login for an existing user.
      */
     post<UserAuth.Login> {
-        call.respondText { "You are trying to login!" }
+        val user = call.receive<UserLoginDTO>()
+        val loggedInUser = userService.findByEmail(user.email)
+        if (loggedInUser != null) {
+            call.respond(loggedInUser)
+        } else {
+            call.respond(HttpStatusCode.Unauthorized)
+        }
     }
 
     /**
      * Modification for a user profile.
      */
     patch<UserAuth.Modify> {
-        call.respondText { "You are trying to change some data!" }
+        val userId = call.request.headers["user-id"]?.toIntOrNull() ?: return@patch call.respond(HttpStatusCode.Unauthorized)
+        try {
+            val modifiedUser = userService.update(userId = userId, dto = call.receive<UserUpdateDTO>())
+            call.respond(HttpStatusCode.OK, modifiedUser)
+        } catch (exception: UserNotFoundException) {
+            call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
+        } catch (exception: EmailAlreadyInUseException) {
+            call.respond(HttpStatusCode.Conflict, exception.message ?: "Email already in use.")
+        }
     }
 
     /**
      * Deletes a users profile.
      */
     delete<UserAuth.Delete> {
-        call.respondText { "You are trying to delete your account!" }
+        val userId = call.request.headers["user-id"]?.toIntOrNull() ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+        try {
+            val userIsDeleted = userService.delete(userId)
+            call.respond(HttpStatusCode.OK, "User successfully deleted: $userIsDeleted")
+        } catch (exception: UserNotFoundException) {
+            call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
+        }
     }
 }
