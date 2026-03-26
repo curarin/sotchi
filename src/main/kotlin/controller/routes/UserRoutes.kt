@@ -34,11 +34,11 @@ fun Route.userRoutesV1(userService: UserService) {
      */
     post<UserAuth.Login> {
         val user = call.receive<UserLoginDTO>()
-        val loggedInUser = userService.findByEmail(user.email)
-        if (loggedInUser != null) {
-            call.respond(loggedInUser)
-        } else {
-            call.respond(HttpStatusCode.Unauthorized)
+        try {
+            val loggedInUser = userService.findByEmail(user.email)
+            call.respond(HttpStatusCode.OK, loggedInUser)
+        } catch (exception: UserNotFoundException) {
+            call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
         }
     }
 

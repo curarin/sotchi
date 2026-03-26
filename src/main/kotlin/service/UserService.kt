@@ -50,7 +50,7 @@ class UserService(
     /**
      * Find a user by their email address.
      */
-    fun findByEmail(email: String): UserEntity? {
+    fun findByEmail(email: String): UserEntity {
         return userRepository.findByEmail(email)
     }
 }
