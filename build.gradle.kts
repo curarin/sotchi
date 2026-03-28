@@ -29,7 +29,12 @@ dependencies {
     implementation(libs.ktor.server.resources)
     implementation("io.ktor:ktor-client-content-negotiation:3.4.1")
     testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.kotlin.test.junit)
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 ktor {
