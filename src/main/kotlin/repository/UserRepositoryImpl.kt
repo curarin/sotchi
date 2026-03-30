@@ -2,10 +2,7 @@ package app.sotchi.repository
 
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
-import app.sotchi.dto.user.UserCreateDTO
-import app.sotchi.dto.user.UserLoginDTO
-import app.sotchi.dto.user.UserReadDTO
-import app.sotchi.dto.user.UserUpdateDTO
+import app.sotchi.dto.user.*
 import kotlinx.datetime.Clock
 
 class UserRepositoryImpl : UserRepository {
@@ -20,16 +17,25 @@ class UserRepositoryImpl : UserRepository {
         return users.values.firstOrNull { it.email.equals(email, ignoreCase = true) } ?: throw UserNotFoundException()
     }
 
-    override fun login(dto: UserLoginDTO): UserEntity {
+    override fun login(dto: UserLoginDTO): UserProfileDTO {
         val loggedInUser = findByEmail(dto.email)
-        return loggedInUser
+        return UserProfileDTO(
+            name = loggedInUser.name,
+            email = loggedInUser.email,
+            createdAtDt = loggedInUser.createdAtDt
+        )
     }
 
-    override fun read(dto: UserReadDTO): UserEntity {
-        return findById(dto.id)
+    override fun read(dto: UserReadDTO): UserProfileDTO {
+        val existingUser = findById(dto.id)
+        return UserProfileDTO(
+            name = existingUser.name,
+            email = existingUser.email,
+            createdAtDt = existingUser.createdAtDt
+        )
     }
 
-    override fun create(dto: UserCreateDTO): UserEntity {
+    override fun create(dto: UserCreateDTO): UserProfileDTO {
         val currentDateTime = Clock.System.now()
         val user = UserEntity(
             id = nextId++,
@@ -39,10 +45,14 @@ class UserRepositoryImpl : UserRepository {
             lastModifiedDt = currentDateTime
         )
         users[user.id] = user
-        return user
+        return UserProfileDTO(
+            name = user.name,
+            email = user.email,
+            createdAtDt = user.createdAtDt
+        )
     }
 
-    override fun update(id: Int, dto: UserUpdateDTO): UserEntity {
+    override fun update(id: Int, dto: UserUpdateDTO): UserProfileDTO {
         val existingUser = users[id] ?: throw UserNotFoundException()
 
         val updatedUser = existingUser.copy(
@@ -52,7 +62,11 @@ class UserRepositoryImpl : UserRepository {
         )
 
         users[id] = updatedUser
-        return updatedUser
+        return UserProfileDTO(
+            name = updatedUser.name,
+            email = updatedUser.email,
+            createdAtDt = updatedUser.createdAtDt
+        )
     }
 
     override fun delete(id: Int): Boolean {

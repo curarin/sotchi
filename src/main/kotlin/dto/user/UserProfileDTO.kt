@@ -1,0 +1,14 @@
+package app.sotchi.dto.user
+
+import kotlinx.serialization.Serializable
+import kotlinx.datetime.Instant
+
+/**
+ * Use case: Returns the minimum needed user data which shall be used as return to API frontend.
+ */
+@Serializable
+data class UserProfileDTO(
+    val name: String,
+    val email: String,
+    val createdAtDt: Instant
+)

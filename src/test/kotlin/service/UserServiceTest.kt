@@ -2,9 +2,9 @@ package service
 
 import app.sotchi.domain.exception.EmailAlreadyInUseException
 import app.sotchi.domain.exception.UserNotFoundException
-import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.dto.user.UserLoginDTO
+import app.sotchi.dto.user.UserProfileDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
@@ -90,7 +90,7 @@ class UserServiceTest {
      * Validates that an existing user entity is returned after successful login.
      */
     @Test
-    fun `login() for successful user returns UserEntity`() {
+    fun `login() for successful user returns UserProfileDTO`() {
         val result = this.userService.login(UserLoginDTO(email = "email@test.com"))
         assertEquals(1, result.id)
         assertEquals("test", result.name)
@@ -113,15 +113,13 @@ class UserServiceTest {
      * validates that reading a user returns the whole UserEntity.
      */
     @Test
-    fun `read() returns full UserEntity`() {
+    fun `read() returns full UserProfileDTO`() {
         val result = userService.read(UserReadDTO(id = 1))
 
-        val expected = UserEntity(
-            id = 1,
+        val expected = UserProfileDTO(
             name = "test",
             email = "email@test.com",
-            createdAtDt = result.createdAtDt,       // timestamps are dynamic
-            lastModifiedDt = result.lastModifiedDt
+            createdAtDt = result.createdAtDt
         )
         assertEquals(expected, result)
     }

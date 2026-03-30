@@ -5,6 +5,7 @@ import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.dto.user.UserLoginDTO
+import app.sotchi.dto.user.UserProfileDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
@@ -16,7 +17,7 @@ class UserService(
     /**
      * User creates a new account.
      */
-    fun create(dto: UserCreateDTO): UserEntity {
+    fun create(dto: UserCreateDTO): UserProfileDTO {
         // ToDo: Bessere Implementierung als diese Yolo Catch der Exception - die Abhängigkeit will ich eig nicht.
         try {
             val existingUser = userRepository.findByEmail(dto.email)
@@ -29,7 +30,7 @@ class UserService(
     /**
      * User modifies their account.
      */
-    fun update(userId: Int, dto: UserUpdateDTO): UserEntity {
+    fun update(userId: Int, dto: UserUpdateDTO): UserProfileDTO {
         val existingUser = userRepository.findById(userId)
 
         if (
@@ -63,7 +64,7 @@ class UserService(
     /**
      * Reads data from an existing account.
      */
-    fun read(dto: UserReadDTO): UserEntity {
+    fun read(dto: UserReadDTO): UserProfileDTO {
         return userRepository.read(dto)
     }
 }
