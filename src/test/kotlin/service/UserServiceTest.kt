@@ -8,7 +8,7 @@ import app.sotchi.dto.user.UserProfileDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
-import app.sotchi.repository.UserRepositoryImpl
+import app.sotchi.repository.UserRepositoryInMemoryImpl
 import app.sotchi.service.UserService
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -29,7 +29,7 @@ class UserServiceTest {
      */
     @BeforeEach
     fun setup() {
-        userRepository = UserRepositoryImpl()
+        userRepository = UserRepositoryInMemoryImpl()
         userService = UserService(userRepository)
         userService.create(UserCreateDTO(
             name = "test",

@@ -3,7 +3,7 @@ package app.sotchi.repository
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
 
-class UserRepositoryImpl : UserRepository {
+class UserRepositoryInMemoryImpl : UserRepository {
     private val users = mutableMapOf<Int, UserEntity>()
     private var nextId = 1
 
