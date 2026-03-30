@@ -9,29 +9,46 @@ import app.sotchi.dto.user.UserProfileDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
+import kotlinx.datetime.Clock
 
 class UserService(
     private val userRepository: UserRepository
 ) {
+    // Wir brauchen: READ, CREATE, UPDATE, DELETE
 
     /**
      * User creates a new account.
      */
     fun create(dto: UserCreateDTO): UserProfileDTO {
-        // ToDo: Bessere Implementierung als diese Yolo Catch der Exception - die Abhängigkeit will ich eig nicht.
-        try {
-            val existingUser = userRepository.findByEmail(dto.email)
+        val existingUser = userRepository.findByEmail(dto.email)
+        if (existingUser != null) {
             throw EmailAlreadyInUseException()
-        } catch (exception: UserNotFoundException) {
-            return userRepository.create(dto)
         }
+
+        val now = Clock.System.now()
+
+        val newUser = UserEntity(
+            id = 0,
+            name = dto.name,
+            email = dto.email,
+            createdAtDt = now,
+            lastModifiedDt = now
+        )
+
+        val savedUser = userRepository.save(newUser)
+
+        return UserProfileDTO(
+            name = savedUser.name,
+            email = savedUser.email,
+            createdAtDt = savedUser.createdAtDt
+        )
     }
 
     /**
      * User modifies their account.
      */
     fun update(userId: Int, dto: UserUpdateDTO): UserProfileDTO {
-        val existingUser = userRepository.findById(userId)
+        val existingUser = userRepository.findById(userId) ?: throw UserNotFoundException()
 
         if (
             dto.email != null &&
@@ -40,9 +57,18 @@ class UserService(
             throw EmailAlreadyInUseException()
         }
 
-        return userRepository.update(
-            id = userId,
-            dto = dto
+        val updatedUser = existingUser.copy(
+            name = dto.name ?: existingUser.name,
+            email = dto.email ?: existingUser.email,
+            lastModifiedDt = Clock.System.now()
+        )
+
+        userRepository.save(updatedUser)
+
+        return UserProfileDTO(
+            email = updatedUser.email,
+            name = updatedUser.name,
+            createdAtDt = updatedUser.createdAtDt
         )
     }
 
@@ -50,21 +76,31 @@ class UserService(
      * User deletes their account.
      */
     fun delete(userId: Int): Boolean {
-        return userRepository.delete(userId)
+        return userRepository.deleteById(userId)
     }
 
 
     /**
      * Login an existing user.
      */
-    fun login(dto: UserLoginDTO): UserEntity {
-        return userRepository.findByEmail(dto.email)
+    fun login(dto: UserLoginDTO): UserProfileDTO {
+        val loggedInUser = userRepository.findByEmail(dto.email) ?: throw UserNotFoundException()
+        return UserProfileDTO(
+            name = loggedInUser.name,
+            email = loggedInUser.email,
+            createdAtDt = loggedInUser.createdAtDt
+        )
     }
 
     /**
      * Reads data from an existing account.
      */
     fun read(dto: UserReadDTO): UserProfileDTO {
-        return userRepository.read(dto)
+        val readUser = userRepository.findById(dto.id) ?: throw UserNotFoundException()
+        return UserProfileDTO(
+            name = readUser.name,
+            email = readUser.email,
+            createdAtDt = readUser.createdAtDt
+        )
     }
 }

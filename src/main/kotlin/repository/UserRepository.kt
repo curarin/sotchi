@@ -8,11 +8,8 @@ import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 
 interface UserRepository {
-    fun findById(id: Int): UserEntity
-    fun findByEmail(email: String): UserEntity
-    fun create(dto: UserCreateDTO): UserProfileDTO
-    fun login(dto: UserLoginDTO): UserProfileDTO
-    fun read(dto: UserReadDTO): UserProfileDTO
-    fun update(id: Int, dto: UserUpdateDTO): UserProfileDTO
-    fun delete(id: Int): Boolean
+    fun findById(id: Int): UserEntity?
+    fun findByEmail(email: String): UserEntity?
+    fun save(user: UserEntity): UserEntity
+    fun deleteById(id: Int): Boolean
 }

@@ -92,10 +92,8 @@ class UserServiceTest {
     @Test
     fun `login() for successful user returns UserProfileDTO`() {
         val result = this.userService.login(UserLoginDTO(email = "email@test.com"))
-        assertEquals(1, result.id)
         assertEquals("test", result.name)
         assertEquals("email@test.com", result.email)
-        assertNotNull(result.lastModifiedDt)
         assertNotNull(result.createdAtDt)
     }
 
