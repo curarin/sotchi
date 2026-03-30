@@ -1,5 +1,6 @@
 package app.sotchi.repository
 
+import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
 
 class UserRepositoryInMemoryImpl : UserRepository {
@@ -25,10 +26,6 @@ class UserRepositoryInMemoryImpl : UserRepository {
     }
 
     override fun deleteById(id: Int): Boolean {
-        val existingUser = users[id]
-        if (existingUser != null) {
-            users.remove(existingUser.id)
-        }
-        return false
+        return users.remove(id) != null
     }
 }
