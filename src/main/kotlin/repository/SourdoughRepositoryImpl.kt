@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger
 class SourdoughRepositoryImpl : SourdoughRepository {
     private val sourdoughs = mutableListOf<SourdoughEntity>()
     private val removedSourdoughs = mutableListOf<SourdoughEntity>()
-    private val idGenerator = AtomicInteger(1)
 
     override fun findAll(): List<SourdoughEntity>? {
         TODO("Not yet implemented")
