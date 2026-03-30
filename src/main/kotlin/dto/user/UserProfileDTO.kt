@@ -1,8 +1,7 @@
 package app.sotchi.dto.user
 
 import kotlinx.serialization.Serializable
-import kotlinx.datetime.Instant
-
+import kotlin.time.Instant
 /**
  * Use case: Returns the minimum needed user data which shall be used as return to API frontend.
  */

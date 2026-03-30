@@ -9,7 +9,7 @@ import app.sotchi.dto.user.UserProfileDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 class UserService(
     private val userRepository: UserRepository
