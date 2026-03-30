@@ -21,6 +21,9 @@ dependencies {
     implementation(libs.ktor.server.routing.openapi)
     implementation(libs.ktor.server.netty)
     implementation(libs.logback.classic)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.h2)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation(libs.ktor.server.config.yaml)
     implementation("io.ktor:ktor-server-openapi")
@@ -31,6 +34,7 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
 }
 
 tasks.test {
