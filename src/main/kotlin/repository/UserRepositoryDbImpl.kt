@@ -2,8 +2,10 @@ package app.sotchi.repository
 
 import app.sotchi.domain.user.UserEntity
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class UserRepositoryDbImpl : UserRepository {
     override fun findById(id: Int): UserEntity? {
@@ -49,13 +51,16 @@ class UserRepositoryDbImpl : UserRepository {
     }
 
     override fun save(user: UserEntity): UserEntity {
-        val user = UserTable.insert {
-            it[name] = user.name
+
+        transaction {
+
         }
         TODO("Not yet implemented")
     }
 
     override fun deleteById(id: Int): Boolean {
-        TODO("Not yet implemented")
+        val row = UserTable.deleteWhere { UserTable.id eq id }
+        // ToDo: Optimierung ggfs. > Return Type aktuell nicht genutzt
+        return true
     }
 }
