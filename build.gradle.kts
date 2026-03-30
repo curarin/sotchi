@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.logback.classic)
     implementation(libs.exposed.core)
+    implementation("org.jetbrains.exposed:exposed-dao:1.1.1")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:1.1.1")
     implementation(libs.exposed.jdbc)
     implementation(libs.h2)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
