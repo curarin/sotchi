@@ -76,7 +76,8 @@ class UserService(
      * User deletes their account.
      */
     fun delete(userId: Int): Boolean {
-        return userRepository.deleteById(userId)
+        val existingUser = userRepository.findById(userId) ?: throw UserNotFoundException()
+        return userRepository.deleteById(existingUser.id)
     }
 
 
