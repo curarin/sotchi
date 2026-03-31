@@ -14,8 +14,6 @@ import kotlin.time.Clock
 class UserService(
     private val userRepository: UserRepository
 ) {
-    // Wir brauchen: READ, CREATE, UPDATE, DELETE
-
     /**
      * User creates a new account.
      */
@@ -30,7 +28,7 @@ class UserService(
         val newUser = UserEntity(
             id = 0,
             name = dto.name,
-            email = dto.email,
+            email = dto.email.trim().lowercase(),
             createdAtDt = now,
             lastModifiedDt = now
         )
@@ -59,7 +57,7 @@ class UserService(
 
         val updatedUser = existingUser.copy(
             name = dto.name ?: existingUser.name,
-            email = dto.email ?: existingUser.email,
+            email = dto.email?.trim()?.lowercase() ?: existingUser.email,
             lastModifiedDt = Clock.System.now()
         )
 
