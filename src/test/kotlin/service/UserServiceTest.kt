@@ -8,8 +8,14 @@ import app.sotchi.dto.user.UserProfileDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
+import app.sotchi.repository.UserRepositoryDbImpl
 import app.sotchi.repository.UserRepositoryInMemoryImpl
+import app.sotchi.repository.UserTable
 import app.sotchi.service.UserService
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -29,7 +35,21 @@ class UserServiceTest {
      */
     @BeforeEach
     fun setup() {
-        userRepository = UserRepositoryInMemoryImpl()
+        Database.connect(
+            url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+            user = "root",
+            driver = "org.h2.Driver",
+            password = "",
+            databaseConfig = DatabaseConfig {
+                defaultMaxAttempts = 3
+            }
+        )
+
+        transaction {
+            SchemaUtils.drop(UserTable)
+            SchemaUtils.create(UserTable)
+        }
+        userRepository = UserRepositoryDbImpl()//UserRepositoryInMemoryImpl()
         userService = UserService(userRepository)
         userService.create(UserCreateDTO(
             name = "test",
