@@ -9,7 +9,6 @@ import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
 import app.sotchi.repository.UserRepositoryDbImpl
-import app.sotchi.repository.UserRepositoryInMemoryImpl
 import app.sotchi.repository.UserTable
 import app.sotchi.service.UserService
 import org.jetbrains.exposed.v1.core.DatabaseConfig
