@@ -20,7 +20,7 @@ dependencies {
     implementation(libs.ktor.server.swagger)
     implementation(libs.ktor.server.routing.openapi)
     implementation(libs.ktor.server.netty)
-    implementation(libs.logback.classic)
+    implementation("ch.qos.logback:logback-classic")
     implementation(libs.exposed.core)
     implementation("org.jetbrains.exposed:exposed-dao:1.1.1")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:1.1.1")
