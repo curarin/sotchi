@@ -24,6 +24,7 @@ class UserRepositoryDbImpl : UserRepository {
             id = row[UserTable.id].value,
             name = row[UserTable.name],
             email = row[UserTable.email],
+            password = row[UserTable.password],
             createdAtDt = row[UserTable.createdAtDt],
             lastModifiedDt = row[UserTable.lastModifiedDt]
         )
@@ -41,17 +42,20 @@ class UserRepositoryDbImpl : UserRepository {
             id = row[UserTable.id].value,
             name = row[UserTable.name],
             email = row[UserTable.email],
+            password = row[UserTable.password],
             createdAtDt = row[UserTable.createdAtDt],
             lastModifiedDt = row[UserTable.lastModifiedDt]
         )
     }
 
     override fun save(user: UserEntity): UserEntity {
+        // ToDo: Kompletter Yolohaufen diese Implementierung. Das muss noch eleganter gehen. Aber es funzt zumindest mal.
         val saveRow = transaction {
             if (user.id == 0) {
                 val inserted = UserTable.insert {
                     it[name] = user.name
                     it[email] = user.email
+                    it[password] = user.password
                     it[createdAtDt] = user.createdAtDt
                     it[lastModifiedDt] = user.lastModifiedDt
                 }
@@ -67,6 +71,7 @@ class UserRepositoryDbImpl : UserRepository {
                 UserTable.update({ UserTable.id eq user.id }) {
                     it[name] = user.name
                     it[email] = user.email
+                    it[password] = user.password
                     it[lastModifiedDt] = user.lastModifiedDt
                 }
                 UserTable
@@ -79,6 +84,7 @@ class UserRepositoryDbImpl : UserRepository {
             id = saveRow[UserTable.id].value,
             name = saveRow[UserTable.name],
             email = saveRow[UserTable.email],
+            password = saveRow[UserTable.password],
             createdAtDt = saveRow[UserTable.createdAtDt],
             lastModifiedDt = saveRow[UserTable.lastModifiedDt]
         )

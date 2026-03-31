@@ -1,6 +1,7 @@
 package service
 
 import app.sotchi.domain.exception.EmailAlreadyInUseException
+import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.dto.user.UserLoginDTO
@@ -10,6 +11,7 @@ import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
 import app.sotchi.repository.UserRepositoryDbImpl
 import app.sotchi.repository.UserTable
+import app.sotchi.repository.UserTable.password
 import app.sotchi.service.UserService
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -52,7 +54,8 @@ class UserServiceTest {
         userService = UserService(userRepository)
         userService.create(UserCreateDTO(
             name = "test",
-            email = "email@test.com"
+            email = "email@test.com",
+            password = "test"
         ))
     }
 
@@ -62,7 +65,7 @@ class UserServiceTest {
     @Test
     fun `create() creates user`() {
         val result = this.userService.create(
-            UserCreateDTO("Paul", "paul@test.com")
+            UserCreateDTO("Paul", "paul@test.com", "test")
         )
         assertEquals("Paul", result.name)
         assertEquals("paul@test.com", result.email)
@@ -73,7 +76,7 @@ class UserServiceTest {
      */
     @Test
     fun `create() throws EmailAlreadyInUseException if user already exists`() {
-        val createDTO = UserCreateDTO("Paul", "paul@test.com")
+        val createDTO = UserCreateDTO("Paul", "paul@test.com", "test")
         this.userService.create(createDTO)
         assertFailsWith<EmailAlreadyInUseException> {
             this.userService.create(createDTO)
@@ -86,6 +89,7 @@ class UserServiceTest {
     @Test
     fun `update() updates user`() {
         val updatedUser = UserUpdateDTO(
+            id = 1,
             name = "test2"
         )
         val result = this.userService.update(
@@ -94,6 +98,24 @@ class UserServiceTest {
         )
         assertEquals("test2", result.name)
         assertEquals("email@test.com", result.email)
+    }
+
+    /**
+     * Validates that a user updating their password works as intended.
+     */
+    @Test
+    fun `update() updates user password`() {
+        val updatedUser = UserUpdateDTO(
+            id = 1,
+            name = "test1",
+            password = "newPassword123"
+        )
+        userService.update(1, updatedUser)
+        assertFailsWith<UserNotAuthenticated> {
+            userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
+        }
+        // If login works as intended we get the UserLoginDTO back, which is expected to have the same Name as the Updated DTO
+        assertEquals(updatedUser.name, userService.login(UserLoginDTO(email = "email@test.com", password = "newPassword123")).name)
     }
 
     /**
@@ -110,7 +132,7 @@ class UserServiceTest {
      */
     @Test
     fun `login() for successful user returns UserProfileDTO`() {
-        val result = this.userService.login(UserLoginDTO(email = "email@test.com"))
+        val result = this.userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
         assertEquals("test", result.name)
         assertEquals("email@test.com", result.email)
         assertNotNull(result.createdAtDt)
@@ -122,7 +144,17 @@ class UserServiceTest {
     @Test
     fun `login() fails if email is not found`() {
         assertFailsWith<UserNotFoundException> {
-            this.userService.login(UserLoginDTO(email = "test"))
+            this.userService.login(UserLoginDTO(email = "test", password = "test"))
+        }
+    }
+
+    /**
+     * Validates that login fails for a user with a wrong password
+     */
+    @Test
+    fun `login() fails if password is invalid`() {
+        assertFailsWith<UserNotAuthenticated> {
+            this.userService.login(UserLoginDTO(email = "email@test.com", password = "invalid"))
         }
     }
 

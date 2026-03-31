@@ -9,5 +9,6 @@ import kotlinx.serialization.Serializable
 data class UserUpdateDTO(
     val id: Int,
     val name: String? = null,
-    val email: String? = null
+    val email: String? = null,
+    val password: String? = null
 )

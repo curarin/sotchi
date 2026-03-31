@@ -2,6 +2,7 @@ package app.sotchi.controller.routes
 
 import app.sotchi.controller.resources.UserAuth
 import app.sotchi.domain.exception.EmailAlreadyInUseException
+import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.dto.user.UserLoginDTO
@@ -53,6 +54,8 @@ fun Route.userRoutesV1(userService: UserService) {
             call.respond(HttpStatusCode.OK, loggedInUser)
         } catch (exception: UserNotFoundException) {
             call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found")
+        } catch (exception: UserNotAuthenticated) {
+            call.respond(HttpStatusCode.Unauthorized, exception.message ?: "User not authenticated.")
         }
     }
 
