@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UserUpdateDTO(
+    val id: Int,
     val name: String? = null,
     val email: String? = null
 )
