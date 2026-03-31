@@ -3,22 +3,19 @@ package app.sotchi.repository
 import app.sotchi.domain.user.UserEntity
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.insertReturning
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 
 class UserRepositoryDbImpl : UserRepository {
     override fun findById(id: Int): UserEntity? {
-        val row = UserTable
-            .select(
-                UserTable.id,
-                UserTable.email,
-                UserTable.name,
-                UserTable.createdAtDt,
-                UserTable.lastModifiedDt
-            )
-            .where { UserTable.id eq id }
-            .singleOrNull() ?: return null
+        val row = transaction {
+            UserTable
+                .selectAll()
+                .where { UserTable.id eq id }
+                .singleOrNull()
+        } ?: return null
 
         return UserEntity(
             id = row[UserTable.id].value,
@@ -30,16 +27,12 @@ class UserRepositoryDbImpl : UserRepository {
     }
 
     override fun findByEmail(email: String): UserEntity? {
-        val row = UserTable
-            .select(
-                UserTable.id,
-                UserTable.email,
-                UserTable.name,
-                UserTable.createdAtDt,
-                UserTable.lastModifiedDt
-            )
-            .where { UserTable.email eq email }
-            .singleOrNull() ?: return null
+        val row = transaction {
+            UserTable
+                .selectAll()
+                .where { UserTable.email eq email }
+                .singleOrNull()
+        } ?: return null
 
         return UserEntity(
             id = row[UserTable.id].value,
@@ -51,16 +44,40 @@ class UserRepositoryDbImpl : UserRepository {
     }
 
     override fun save(user: UserEntity): UserEntity {
+        val saveRow = transaction {
+            if (user.id == 0) {
+                UserTable.insertReturning {
+                    it[name] = user.name
+                    it[email] = user.email
+                    it[createdAtDt] = user.createdAtDt
+                    it[lastModifiedDt] = user.lastModifiedDt
+                }.single()
+            } else {
+                UserTable.update({ UserTable.id eq user.id }) {
+                    it[name] = user.name
+                    it[email] = user.email
+                    it[lastModifiedDt] = user.lastModifiedDt
+                }
 
-        transaction {
-
+                UserTable
+                    .selectAll()
+                    .where { UserTable.id eq user.id }
+                    .single()
+            }
         }
-        TODO("Not yet implemented")
+        return UserEntity(
+            id = saveRow[UserTable.id].value,
+            name = saveRow[UserTable.name],
+            email = saveRow[UserTable.email],
+            createdAtDt = saveRow[UserTable.createdAtDt],
+            lastModifiedDt = saveRow[UserTable.lastModifiedDt]
+        )
     }
 
     override fun deleteById(id: Int): Boolean {
-        val row = UserTable.deleteWhere { UserTable.id eq id }
-        // ToDo: Optimierung ggfs. > Return Type aktuell nicht genutzt
-        return true
+        val deletedCount = transaction {
+            UserTable.deleteWhere { UserTable.id eq id }
+        }
+        return deletedCount > 0
     }
 }
