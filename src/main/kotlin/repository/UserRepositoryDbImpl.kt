@@ -7,7 +7,9 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import io.ktor.util.logging.*
 
+internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
 /**
  * Implementation of Database persistence setup.
  */
@@ -19,6 +21,8 @@ class UserRepositoryDbImpl : UserRepository {
                 .where { UserTable.id eq id }
                 .singleOrNull()
         } ?: return null
+
+        LOGGER.info("User found by id: $id")
 
         return UserEntity(
             id = row[UserTable.id].value,
@@ -37,6 +41,8 @@ class UserRepositoryDbImpl : UserRepository {
                 .where { UserTable.email eq email }
                 .singleOrNull()
         } ?: return null
+
+        LOGGER.info("User found by email: $email")
 
         return UserEntity(
             id = row[UserTable.id].value,
@@ -62,6 +68,8 @@ class UserRepositoryDbImpl : UserRepository {
 
                 val generatedId = inserted[UserTable.id].value
 
+                LOGGER.info("New user inserted with id: $generatedId")
+
                 UserTable
                     .selectAll()
                     .where { UserTable.id eq generatedId }
@@ -74,6 +82,8 @@ class UserRepositoryDbImpl : UserRepository {
                     it[password] = user.password
                     it[lastModifiedDt] = user.lastModifiedDt
                 }
+
+                LOGGER.info("Existing user updated with id ${user.id}")
                 UserTable
                     .selectAll()
                     .where { UserTable.id eq user.id }
@@ -94,6 +104,12 @@ class UserRepositoryDbImpl : UserRepository {
         val deletedCount = transaction {
             UserTable.deleteWhere { UserTable.id eq id }
         }
-        return deletedCount > 0
+        if (deletedCount > 0) {
+            LOGGER.info("User deleted with id: $id")
+            return true
+        } else {
+            LOGGER.warn("Tried to delete user with id $id - no rows deleted.")
+            return false
+        }
     }
 }
