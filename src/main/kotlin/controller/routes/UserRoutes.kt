@@ -60,10 +60,10 @@ fun Route.userRoutesV1(userService: UserService) {
      * Modification for a user profile.
      */
     patch<UserAuth.Update> {
-        val userId =
-            call.request.headers["user-id"]?.toIntOrNull() ?: return@patch call.respond(HttpStatusCode.Unauthorized)
+        val user = call.receive<UserUpdateDTO>()
+        val userId = user.id
         try {
-            val modifiedUser = userService.update(userId = userId, dto = call.receive<UserUpdateDTO>())
+            val modifiedUser = userService.update(userId = userId, dto = user)
             call.respond(HttpStatusCode.OK, modifiedUser)
         } catch (exception: UserNotFoundException) {
             call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
