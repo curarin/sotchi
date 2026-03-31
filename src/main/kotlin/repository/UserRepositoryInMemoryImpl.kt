@@ -1,6 +1,5 @@
 package app.sotchi.repository
 
-import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.user.UserEntity
 
 class UserRepositoryInMemoryImpl : UserRepository {
