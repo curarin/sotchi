@@ -59,7 +59,7 @@ fun Route.userRoutesV1(userService: UserService) {
     /**
      * Modification for a user profile.
      */
-    patch<UserAuth.Modify> {
+    patch<UserAuth.Update> {
         val userId =
             call.request.headers["user-id"]?.toIntOrNull() ?: return@patch call.respond(HttpStatusCode.Unauthorized)
         try {
