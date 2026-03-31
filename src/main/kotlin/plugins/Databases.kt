@@ -11,7 +11,7 @@ fun Application.configureDatabases() {
         url = "jdbc:h2:./dev",
         user = "root",
         driver = "org.h2.Driver",
-        password = "",
+        password = "root",
         databaseConfig = DatabaseConfig {
             defaultMaxAttempts = 3
         }
