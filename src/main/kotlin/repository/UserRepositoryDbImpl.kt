@@ -30,6 +30,7 @@ class UserRepositoryDbImpl : UserRepository {
             email = row[UserTable.email],
             password = row[UserTable.password],
             createdAtDt = row[UserTable.createdAtDt],
+            role = row[UserTable.role],
             lastModifiedDt = row[UserTable.lastModifiedDt]
         )
     }
@@ -50,6 +51,7 @@ class UserRepositoryDbImpl : UserRepository {
             email = row[UserTable.email],
             password = row[UserTable.password],
             createdAtDt = row[UserTable.createdAtDt],
+            role = row[UserTable.role],
             lastModifiedDt = row[UserTable.lastModifiedDt]
         )
     }
@@ -63,6 +65,7 @@ class UserRepositoryDbImpl : UserRepository {
                     it[email] = user.email
                     it[password] = user.password
                     it[createdAtDt] = user.createdAtDt
+                    it[role] = user.role
                     it[lastModifiedDt] = user.lastModifiedDt
                 }
 
@@ -96,6 +99,7 @@ class UserRepositoryDbImpl : UserRepository {
             email = saveRow[UserTable.email],
             password = saveRow[UserTable.password],
             createdAtDt = saveRow[UserTable.createdAtDt],
+            role = saveRow[UserTable.role],
             lastModifiedDt = saveRow[UserTable.lastModifiedDt]
         )
     }
