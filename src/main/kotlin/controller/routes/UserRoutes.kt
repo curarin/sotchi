@@ -39,8 +39,8 @@ fun Route.userRoutesV1(userService: UserService) {
     post<UserAuth.Create> {
         val user = call.receive<UserCreateDTO>()
         try {
-            val createdUser = userService.create(user)
-            call.respond(HttpStatusCode.Created, createdUser)
+            userService.create(user)
+            call.respond(HttpStatusCode.Created)
         } catch (exception: EmailAlreadyInUseException) {
             call.respond(HttpStatusCode.Conflict, exception.message ?: "Email already in use.")
         }
@@ -55,7 +55,8 @@ fun Route.userRoutesV1(userService: UserService) {
             val jwtToken = JWT.create()
                 .withAudience(environment.config.property("ktor.jwt.audience").getString())
                 .withIssuer(environment.config.property("ktor.jwt.issuer").getString())
-                .withClaim("username", loggedInUser.name)
+                .withClaim("userId", loggedInUser.id)
+                .withClaim("role", loggedInUser.role.toString())
                 .withExpiresAt(Date(System.currentTimeMillis() + 60000))
                 .sign(Algorithm.HMAC256(environment.config.property("ktor.jwt.secret").getString()))
             call.respond(HttpStatusCode.OK, hashMapOf("token" to jwtToken))
@@ -73,8 +74,8 @@ fun Route.userRoutesV1(userService: UserService) {
         val user = call.receive<UserUpdateDTO>()
         val userId = user.id
         try {
-            val modifiedUser = userService.update(userId = userId, dto = user)
-            call.respond(HttpStatusCode.OK, modifiedUser)
+            val userIsModified = userService.update(userId = userId, dto = user)
+            call.respond(HttpStatusCode.OK, userIsModified)
         } catch (exception: UserNotFoundException) {
             call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
         } catch (exception: EmailAlreadyInUseException) {
@@ -89,8 +90,8 @@ fun Route.userRoutesV1(userService: UserService) {
         val user = call.receive<UserReadDTO>()
         val userId = user.id
         try {
-            val userIsDeleted = userService.delete(userId)
-            call.respond(HttpStatusCode.OK, "User successfully deleted: $userIsDeleted")
+            userService.delete(userId)
+            call.respond(HttpStatusCode.OK)
         } catch (exception: UserNotFoundException) {
             call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
         }
