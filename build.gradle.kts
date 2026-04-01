@@ -29,6 +29,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation(libs.ktor.server.config.yaml)
     implementation("io.ktor:ktor-server-openapi")
+    implementation("io.ktor:ktor-server-auth:3.4.1")
+    implementation("io.ktor:ktor-server-auth-jwt:3.4.1")
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.resources)
