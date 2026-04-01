@@ -9,11 +9,14 @@ import app.sotchi.dto.user.UserLoginDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.service.UserService
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
+import java.util.Date
 
 
 fun Route.userRoutesV1(userService: UserService) {
@@ -49,7 +52,13 @@ fun Route.userRoutesV1(userService: UserService) {
         val user = call.receive<UserLoginDTO>()
         try {
             val loggedInUser = userService.login(user)
-            call.respond(HttpStatusCode.OK, loggedInUser)
+            val jwtToken = JWT.create()
+                .withAudience(environment.config.property("ktor.jwt.audience").getString())
+                .withIssuer(environment.config.property("ktor.jwt.issuer").getString())
+                .withClaim("username", loggedInUser.name)
+                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                .sign(Algorithm.HMAC256(environment.config.property("ktor.jwt.secret").getString()))
+            call.respond(HttpStatusCode.OK, hashMapOf("token" to jwtToken))
         } catch (exception: UserNotFoundException) {
             call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found")
         } catch (exception: UserNotAuthenticated) {
