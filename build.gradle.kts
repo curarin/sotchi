@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.exposed.jdbc)
     implementation(libs.h2)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+    implementation("org.jetbrains.exposed:exposed-core")
     implementation(libs.ktor.server.config.yaml)
     implementation("io.ktor:ktor-server-openapi")
     implementation("io.ktor:ktor-server-auth:3.4.1")
