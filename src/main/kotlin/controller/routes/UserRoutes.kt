@@ -29,7 +29,7 @@ fun Route.userRoutesV1(userService: UserService) {
             val existingUser = userService.read(user)
             call.respond(HttpStatusCode.OK, existingUser)
         } catch (exception: UserNotFoundException) {
-            call.respond(HttpStatusCode.NotFound)
+            call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found")
         }
     }
 
