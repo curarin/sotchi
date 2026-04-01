@@ -3,6 +3,7 @@ package service
 import app.sotchi.domain.exception.EmailAlreadyInUseException
 import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
+import app.sotchi.domain.generic.UserRole
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.dto.user.UserLoginDTO
 import app.sotchi.dto.user.UserProfileDTO
@@ -11,7 +12,6 @@ import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.repository.UserRepository
 import app.sotchi.repository.UserRepositoryDbImpl
 import app.sotchi.repository.UserTable
-import app.sotchi.repository.UserTable.password
 import app.sotchi.service.UserService
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -19,7 +19,6 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
@@ -64,11 +63,12 @@ class UserServiceTest {
      */
     @Test
     fun `create() creates user`() {
-        val result = this.userService.create(
+        val userIsCreated = this.userService.create(
             UserCreateDTO("Paul", "paul@test.com", "test")
         )
-        assertEquals("Paul", result.name)
-        assertEquals("paul@test.com", result.email)
+        assertTrue(userIsCreated)
+        assertEquals("Paul", userRepository.findByEmail("paul@test.com")?.name)
+        assertEquals("paul@test.com", userRepository.findByEmail("paul@test.com")?.email)
     }
 
     /**
@@ -92,12 +92,13 @@ class UserServiceTest {
             id = 1,
             name = "test2"
         )
-        val result = this.userService.update(
+        val userIsUpdated = this.userService.update(
             userId = 1,
             dto = updatedUser
         )
-        assertEquals("test2", result.name)
-        assertEquals("email@test.com", result.email)
+        assertTrue(userIsUpdated)
+        assertEquals("test2", userRepository.findById(1)?.name)
+        assertEquals("email@test.com", userRepository.findById(1)?.email)
     }
 
     /**
@@ -115,7 +116,7 @@ class UserServiceTest {
             userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
         }
         // If login works as intended we get the UserLoginDTO back, which is expected to have the same Name as the Updated DTO
-        assertEquals(updatedUser.name, userService.login(UserLoginDTO(email = "email@test.com", password = "newPassword123")).name)
+        assertEquals(updatedUser.id, userService.login(UserLoginDTO(email = "email@test.com", password = "newPassword123")).id)
     }
 
     /**
@@ -131,11 +132,10 @@ class UserServiceTest {
      * Validates that an existing user entity is returned after successful login.
      */
     @Test
-    fun `login() for successful user returns UserProfileDTO`() {
+    fun `login() for successful user returns correct ID`() {
         val result = this.userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
-        assertEquals("test", result.name)
-        assertEquals("email@test.com", result.email)
-        assertNotNull(result.createdAtDt)
+        assertEquals(1, result.id)
+        assertEquals(UserRole.STANDARD, result.role)
     }
 
     /**
@@ -171,5 +171,35 @@ class UserServiceTest {
             createdAtDt = result.createdAtDt
         )
         assertEquals(expected, result)
+    }
+
+    /**
+     * Validates that creating a new user sets UserRole to Default Standard
+     */
+    @Test
+    fun `create() sets default user role to standard`() {
+        val userIsCreated = userService.create(UserCreateDTO(
+            name = "test",
+            email = "test2@example.com",
+            password = "test"
+        ))
+
+        val createdUser = userRepository.findByEmail("test2@example.com")
+        assertTrue(userIsCreated)
+        assertEquals(UserRole.STANDARD, createdUser?.role)
+    }
+
+    /**
+     * Validates that UserAuthenticationDTO returns correct user role.
+     * In future we implement an 'upgrade plan' method in UserService
+     * which sets
+     */
+    @Test
+    fun `login() returns correct default user role`() {
+        val loggedInUser = userService.login(UserLoginDTO(
+            email = "email@test.com",
+            password = "test"
+        ))
+        assertTrue(loggedInUser.role == UserRole.STANDARD)
     }
 }

@@ -3,6 +3,7 @@ package app.sotchi.service
 import app.sotchi.domain.exception.EmailAlreadyInUseException
 import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
+import app.sotchi.domain.generic.UserRole
 import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.*
 import app.sotchi.repository.UserRepository
@@ -18,7 +19,7 @@ class UserService(
     /**
      * User creates a new account.
      */
-    fun create(dto: UserCreateDTO): UserProfileDTO {
+    fun create(dto: UserCreateDTO): Boolean {
         val existingUser = userRepository.findByEmail(dto.email)
         if (existingUser != null) {
             LOGGER.warn("[create] User with email ${dto.email} already exists.")
@@ -33,22 +34,19 @@ class UserService(
             email = dto.email.trim().lowercase(),
             password = Authentication().hashPassword(dto.password.toCharArray()),
             createdAtDt = now,
+            role = UserRole.STANDARD,
             lastModifiedDt = now
         )
 
-        val savedUser = userRepository.save(newUser)
+        userRepository.save(newUser)
 
-        return UserProfileDTO(
-            name = savedUser.name,
-            email = savedUser.email,
-            createdAtDt = savedUser.createdAtDt
-        )
+        return true
     }
 
     /**
      * User modifies their account.
      */
-    fun update(userId: Int, dto: UserUpdateDTO): UserProfileDTO {
+    fun update(userId: Int, dto: UserUpdateDTO): Boolean {
         val existingUser = userRepository.findById(userId) ?: throw UserNotFoundException()
 
         if (
@@ -67,12 +65,6 @@ class UserService(
                 lastModifiedDt = Clock.System.now()
             )
             userRepository.save(updatedUser)
-
-            return UserProfileDTO(
-                email = updatedUser.email,
-                name = updatedUser.name,
-                createdAtDt = updatedUser.createdAtDt
-            )
         } else {
             val updatedUser = existingUser.copy(
                 name = dto.name ?: existingUser.name,
@@ -81,13 +73,8 @@ class UserService(
                 lastModifiedDt = Clock.System.now()
             )
             userRepository.save(updatedUser)
-
-            return UserProfileDTO(
-                email = updatedUser.email,
-                name = updatedUser.name,
-                createdAtDt = updatedUser.createdAtDt
-            )
         }
+        return true
     }
 
     /**
@@ -102,15 +89,14 @@ class UserService(
     /**
      * Login an existing user.
      */
-    fun login(dto: UserLoginDTO): UserProfileDTO {
+    fun login(dto: UserLoginDTO): UserAuthenticationDTO {
         val loggedInUser = userRepository.findByEmail(dto.email) ?: throw UserNotFoundException()
         val userIsAuthenticated = Authentication().validate(loggedInUser.password, dto.password.toCharArray())
         if (userIsAuthenticated) {
             LOGGER.info("[service login] User is authenticated: ${loggedInUser.id}")
-            return UserProfileDTO(
-                name = loggedInUser.name,
-                email = loggedInUser.email,
-                createdAtDt = loggedInUser.createdAtDt
+            return UserAuthenticationDTO(
+                id = loggedInUser.id,
+                role = loggedInUser.role
             )
         } else {
             LOGGER.warn("[login] User is not authenticated: ${dto.email}")
