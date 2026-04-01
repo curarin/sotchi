@@ -1,6 +1,6 @@
 package app.sotchi.controller.resources
 
-import io.ktor.resources.Resource
+import io.ktor.resources.*
 
 /**
  * Resource for generic data stuff which is reused across the data model - e.g. Flour Type.

@@ -1,6 +1,6 @@
 package app.sotchi.controller.resources
 
-import io.ktor.resources.Resource
+import io.ktor.resources.*
 
 // We want type safe routing, so we do https://ktor.io/docs/server-resources.html
 @Resource("/user/auth")

@@ -5,10 +5,11 @@ import app.sotchi.dto.sourdough.CreateSourdoughDTO
 import app.sotchi.dto.sourdough.DeleteSourdoughDTO
 import app.sotchi.service.SourdoughService
 import io.ktor.http.*
-import io.ktor.server.request.receive
+import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
+import kotlin.text.toIntOrNull
 
 fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
     /**

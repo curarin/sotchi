@@ -1,8 +1,6 @@
 package app.sotchi.repository
 
-import app.sotchi.controller.resources.Sourdough
 import app.sotchi.domain.sourdough.SourdoughEntity
-import java.util.concurrent.atomic.AtomicInteger
 
 class SourdoughRepositoryImpl : SourdoughRepository {
     private val sourdoughs = mutableListOf<SourdoughEntity>()

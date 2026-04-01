@@ -1,6 +1,9 @@
 package app.sotchi.plugins
 
-import app.sotchi.controller.routes.*
+import app.sotchi.controller.routes.genericRoutesV1
+import app.sotchi.controller.routes.healthRouteV1
+import app.sotchi.controller.routes.sourdoughRoutesV1
+import app.sotchi.controller.routes.userRoutesV1
 import app.sotchi.repository.SourdoughRepositoryImpl
 import app.sotchi.repository.UserRepositoryDbImpl
 import app.sotchi.service.SourdoughService

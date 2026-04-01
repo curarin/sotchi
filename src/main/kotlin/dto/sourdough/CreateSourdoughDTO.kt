@@ -1,8 +1,8 @@
 package app.sotchi.dto.sourdough
 
 import app.sotchi.domain.generic.FlourTypeEntity
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.datetime.*
 
 @Serializable
 data class CreateSourdoughDTO(

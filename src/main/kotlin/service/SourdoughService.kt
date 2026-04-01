@@ -2,13 +2,11 @@ package app.sotchi.service
 
 import app.sotchi.domain.sourdough.SourdoughEntity
 import app.sotchi.domain.sourdough.SourdoughFeedStateEntity
-import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.sourdough.CreateSourdoughDTO
 import app.sotchi.dto.sourdough.DeleteSourdoughDTO
 import app.sotchi.repository.SourdoughRepository
 import app.sotchi.repository.UserRepository
 import kotlinx.datetime.*
-import kotlin.jvm.Throws
 
 class SourdoughService(
     private val sourdoughRepository: SourdoughRepository,

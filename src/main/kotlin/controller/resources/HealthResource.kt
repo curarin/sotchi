@@ -1,6 +1,6 @@
 package app.sotchi.controller.resources
 
-import io.ktor.resources.Resource
+import io.ktor.resources.*
 
 /**
  * Resource for providing health status of API.

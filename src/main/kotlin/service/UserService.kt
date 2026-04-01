@@ -8,8 +8,8 @@ import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.*
 import app.sotchi.repository.UserRepository
 import app.sotchi.security.Authentication
-import kotlin.time.Clock
 import io.ktor.util.logging.*
+import kotlin.time.Clock
 
 internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
 

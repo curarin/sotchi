@@ -2,7 +2,7 @@ package app.sotchi.domain.sourdough
 
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.user.UserEntity
-import kotlinx.datetime.*
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable

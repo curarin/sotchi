@@ -1,7 +1,7 @@
 package app.sotchi.repository
 import app.sotchi.domain.generic.UserRole
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
-import org.jetbrains.exposed.v1.datetime.*
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 const val MAX_VARCHAR_LENGTH = 50
 

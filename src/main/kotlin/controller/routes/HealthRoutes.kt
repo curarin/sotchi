@@ -1,10 +1,10 @@
 package app.sotchi.controller.routes
 
 import app.sotchi.controller.resources.Health
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.resources.get
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.Route
+import io.ktor.http.*
+import io.ktor.server.resources.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 fun Route.healthRouteV1() {
     get<Health> {
