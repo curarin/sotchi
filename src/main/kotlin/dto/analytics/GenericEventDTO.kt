@@ -5,6 +5,7 @@ import kotlin.time.Instant
 /**
  * Use case: Event for analytics purposes which is published to some sort of messaging queue downstream.
  */
+// https://ktor.io/docs/server-server-sent-events.html
 data class GenericEventDTO(
     val eventName: String = "undefined",
     val eventVersion: Int = 1,
