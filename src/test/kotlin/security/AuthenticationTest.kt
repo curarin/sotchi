@@ -1,17 +1,17 @@
 package security
 
-import app.sotchi.security.Authentication
+import app.sotchi.security.Encryption
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class AuthenticationTest {
-    private lateinit var authenticator: Authentication
+    private lateinit var authenticator: Encryption
     private lateinit var password: CharArray
 
    @BeforeEach
    fun setUp() {
-       authenticator = Authentication()
+       authenticator = Encryption()
        password = charArrayOf('a', 'b', 'c')
    }
 

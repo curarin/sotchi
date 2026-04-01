@@ -7,7 +7,7 @@ import app.sotchi.domain.generic.UserRole
 import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.*
 import app.sotchi.repository.UserRepository
-import app.sotchi.security.Authentication
+import app.sotchi.security.Encryption
 import io.ktor.util.logging.*
 import kotlin.time.Clock
 
@@ -32,7 +32,7 @@ class UserService(
             id = 0,
             name = dto.name,
             email = dto.email.trim().lowercase(),
-            password = Authentication().hashPassword(dto.password.toCharArray()),
+            password = Encryption().hashPassword(dto.password.toCharArray()),
             createdAtDt = now,
             role = UserRole.STANDARD,
             lastModifiedDt = now
@@ -57,7 +57,7 @@ class UserService(
         }
 
         if (dto.password != null) {
-            val hashedPassword = Authentication().hashPassword(dto.password.toCharArray())
+            val hashedPassword = Encryption().hashPassword(dto.password.toCharArray())
             val updatedUser = existingUser.copy(
                 name = dto.name ?: existingUser.name,
                 email = dto.email?.trim()?.lowercase() ?: existingUser.email,
@@ -91,7 +91,7 @@ class UserService(
      */
     fun login(dto: UserLoginDTO): UserAuthenticationDTO {
         val loggedInUser = userRepository.findByEmail(dto.email) ?: throw UserNotFoundException()
-        val userIsAuthenticated = Authentication().validate(loggedInUser.password, dto.password.toCharArray())
+        val userIsAuthenticated = Encryption().validate(loggedInUser.password, dto.password.toCharArray())
         if (userIsAuthenticated) {
             LOGGER.info("[service login] User is authenticated: ${loggedInUser.id}")
             return UserAuthenticationDTO(

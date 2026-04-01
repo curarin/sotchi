@@ -2,7 +2,7 @@ package app.sotchi.security
 import de.mkammerer.argon2.Argon2
 import de.mkammerer.argon2.Argon2Factory
 
-class Authentication() {
+class Encryption() {
     val argon2: Argon2 = Argon2Factory.create()
 
     fun validate(storedHash: String, password: CharArray): Boolean {
