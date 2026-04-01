@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 
 /**
  * Tests the logic of user service.
@@ -89,11 +90,10 @@ class UserServiceTest {
     @Test
     fun `update() updates user`() {
         val updatedUser = UserUpdateDTO(
-            id = 1,
             name = "test2"
         )
         val userIsUpdated = this.userService.update(
-            userId = 1,
+            userId = 1, // kommt aus dem JWT
             dto = updatedUser
         )
         assertTrue(userIsUpdated)
@@ -107,7 +107,6 @@ class UserServiceTest {
     @Test
     fun `update() updates user password`() {
         val updatedUser = UserUpdateDTO(
-            id = 1,
             name = "test1",
             password = "newPassword123"
         )
@@ -115,8 +114,10 @@ class UserServiceTest {
         assertFailsWith<UserNotAuthenticated> {
             userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
         }
-        // If login works as intended we get the UserLoginDTO back, which is expected to have the same Name as the Updated DTO
-        assertEquals(updatedUser.id, userService.login(UserLoginDTO(email = "email@test.com", password = "newPassword123")).id)
+        // If login works as intended we get the AuthenticationDTO back
+        val authenticatedUser = userService.login(UserLoginDTO(email = "email@test.com", password = "newPassword123"))
+        assertNotNull(authenticatedUser)
+        assertEquals(1, authenticatedUser.id)
     }
 
     /**
