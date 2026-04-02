@@ -10,6 +10,9 @@ build/
 ## Artifacts ##
 *.DS_Store
 
+## Backup Files ##
+*.bkp
+
 ### STS ###
 .apt_generated
 .classpath
