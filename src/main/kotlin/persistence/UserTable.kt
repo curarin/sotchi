@@ -1,4 +1,4 @@
-package app.sotchi.repository
+package app.sotchi.persistence
 import app.sotchi.domain.generic.UserRole
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.timestamp

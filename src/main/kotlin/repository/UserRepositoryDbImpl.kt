@@ -1,6 +1,7 @@
 package app.sotchi.repository
 
 import app.sotchi.domain.user.UserEntity
+import app.sotchi.persistence.UserTable
 import io.ktor.util.logging.*
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

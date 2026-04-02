@@ -1,5 +1,5 @@
 package app.sotchi.plugins
-import app.sotchi.repository.UserTable
+import app.sotchi.persistence.UserTable
 import io.ktor.server.application.*
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
