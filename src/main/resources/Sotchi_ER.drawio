@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
   <diagram name="Page-1" id="VEHqehLSqilvJ7AeCHtI">
-    <mxGraphModel dx="860" dy="2062" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="956" dy="2024" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -731,7 +731,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="3dMIzESNu-PHAfyFHnT4-1" parent="1" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;" value="&lt;font style=&quot;font-size: 8px;&quot;&gt;activationLog&lt;/font&gt;" vertex="1">
+        <mxCell id="3dMIzESNu-PHAfyFHnT4-1" parent="1" style="shape=label;whiteSpace=wrap;html=1;align=center;rounded=0;" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;activationLog&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="80" x="142" y="210" as="geometry" />
         </mxCell>
         <mxCell id="3dMIzESNu-PHAfyFHnT4-7" edge="1" parent="1" source="3dMIzESNu-PHAfyFHnT4-6" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=none;endFill=0;" target="V6d7LPt3XVzK_2DvvBEu-3">
@@ -752,7 +752,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="3dMIzESNu-PHAfyFHnT4-6" parent="1" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;" value="&lt;span style=&quot;font-size: 8px;&quot;&gt;userStatus&lt;/span&gt;" vertex="1">
+        <mxCell id="3dMIzESNu-PHAfyFHnT4-6" parent="1" style="shape=label;whiteSpace=wrap;html=1;align=center;rounded=0;" value="&lt;font&gt;userStatus&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="80" x="249" y="200" as="geometry" />
         </mxCell>
         <mxCell id="3dMIzESNu-PHAfyFHnT4-11" parent="1" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;html=1;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;" value="activationLog" vertex="1">
