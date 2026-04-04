@@ -1,9 +1,6 @@
 package app.sotchi.controller.routes
 
 import app.sotchi.controller.resources.UserAuth
-import app.sotchi.domain.exception.EmailAlreadyInUseException
-import app.sotchi.domain.exception.UserNotAuthenticated
-import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.generic.UserRole
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.dto.user.UserLoginDTO
@@ -29,33 +26,23 @@ fun Route.userRoutesV1(userService: UserService) {
      */
     post<UserAuth.Create> {
         val user = call.receive<UserCreateDTO>()
-        try {
-            userService.create(user)
-            call.respond(HttpStatusCode.Created)
-        } catch (exception: EmailAlreadyInUseException) {
-            call.respond(HttpStatusCode.Conflict, exception.message ?: "Email already in use.")
-        }
+        userService.create(user)
+        call.respond(HttpStatusCode.Created)
     }
     /**
      * Login for an existing user.
      */
     post<UserAuth.Login> {
         val user = call.receive<UserLoginDTO>()
-        try {
-            val loggedInUser = userService.login(user)
-            val jwtToken = JWT.create()
-                .withAudience(environment.config.property("ktor.jwt.audience").getString())
-                .withIssuer(environment.config.property("ktor.jwt.issuer").getString())
-                .withClaim("userId", loggedInUser.id)
-                .withClaim("role", loggedInUser.role.toString())
-                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
-                .sign(Algorithm.HMAC256(environment.config.property("ktor.jwt.secret").getString()))
-            call.respond(HttpStatusCode.OK, hashMapOf("token" to jwtToken))
-        } catch (exception: UserNotFoundException) {
-            call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found")
-        } catch (exception: UserNotAuthenticated) {
-            call.respond(HttpStatusCode.Unauthorized, exception.message ?: "User not authenticated.")
-        }
+        val loggedInUser = userService.login(user)
+        val jwtToken = JWT.create()
+            .withAudience(environment.config.property("ktor.jwt.audience").getString())
+            .withIssuer(environment.config.property("ktor.jwt.issuer").getString())
+            .withClaim("userId", loggedInUser.id)
+            .withClaim("role", loggedInUser.role.toString())
+            .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+            .sign(Algorithm.HMAC256(environment.config.property("ktor.jwt.secret").getString()))
+        call.respond(HttpStatusCode.OK, hashMapOf("token" to jwtToken))
     }
 
     authenticate("auth-jwt") {
@@ -68,12 +55,8 @@ fun Route.userRoutesV1(userService: UserService) {
             val userRole = UserRole.valueOf(user.payload.getClaim("role").asString())
             val expiresAt = user.expiresAt?.time?.minus(System.currentTimeMillis())
             application.environment.log.info("JWT token received: userId $userId, userRole $userRole, expires at $expiresAt ms")
-            try {
-                val existingUser = userService.read(UserReadDTO(userId))
-                call.respond(HttpStatusCode.OK, existingUser)
-            } catch (exception: UserNotFoundException) {
-                call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found")
-            }
+            val existingUser = userService.read(UserReadDTO(userId))
+            call.respond(HttpStatusCode.OK, existingUser)
         }
 
         /**
@@ -84,14 +67,8 @@ fun Route.userRoutesV1(userService: UserService) {
             val user = call.principal<JWTPrincipal>()
             val userId = user!!.payload.getClaim("userId").asInt()
             application.environment.log.info("JWT token received: userId $userId")
-            try {
-                val userIsModified = userService.update(userId = userId, dto = userWithUpdatedData)
-                call.respond(HttpStatusCode.OK, userIsModified)
-            } catch (exception: UserNotFoundException) {
-                call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
-            } catch (exception: EmailAlreadyInUseException) {
-                call.respond(HttpStatusCode.Conflict, exception.message ?: "Email already in use.")
-            }
+            val userIsModified = userService.update(userId = userId, dto = userWithUpdatedData)
+            call.respond(HttpStatusCode.OK, userIsModified)
         }
 
         /**
@@ -100,12 +77,8 @@ fun Route.userRoutesV1(userService: UserService) {
         delete<UserAuth.Delete> {
             val user = call.principal<JWTPrincipal>()
             val userId = user!!.payload.getClaim("userId").asInt()
-            try {
-                userService.delete(userId)
-                call.respond(HttpStatusCode.OK)
-            } catch (exception: UserNotFoundException) {
-                call.respond(HttpStatusCode.NotFound, exception.message ?: "User not found.")
-            }
+            userService.delete(userId)
+            call.respond(HttpStatusCode.OK)
         }
     }
 }
