@@ -1,8 +1,6 @@
 package app.sotchi.plugins
 
-import app.sotchi.domain.exception.EmailAlreadyInUseException
-import app.sotchi.domain.exception.UserNotAuthenticated
-import app.sotchi.domain.exception.UserNotFoundException
+import app.sotchi.domain.exception.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -24,9 +22,11 @@ fun Application.configureStatusPages() {
                 is MissingFieldException -> {
                     "Missing field: ${root.missingFields}"
                 }
+
                 is SerializationException -> {
                     "Invalid field type or format"
                 }
+
                 else -> {
                     root?.message ?: "Invalid request body"
                 }
@@ -46,11 +46,25 @@ fun Application.configureStatusPages() {
                 is EmailAlreadyInUseException -> {
                     call.respondText(text = "409: $cause", status = HttpStatusCode.Conflict)
                 }
+
                 is UserNotAuthenticated -> {
                     call.respondText(text = "403: User not authenticated", status = HttpStatusCode.Forbidden)
                 }
+
                 is UserNotFoundException -> {
                     call.respondText(text = "404: User not found", status = HttpStatusCode.NotFound)
+                }
+
+                is UserNameInvalid -> {
+                    call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
+                }
+
+                is UserEmailInvalid -> {
+                    call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
+                }
+
+                is UserPasswordInvalid -> {
+                    call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
                 }
 
                 else -> {
