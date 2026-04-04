@@ -21,6 +21,12 @@ class InputValidatorTest {
     }
 
     @Test
+    fun `password is blank`() {
+        assertFailsWith<UserPasswordInvalid> {
+            InputValidator.validatePassword("")
+        }
+    }
+    @Test
     fun `password too long`() {
         assertFailsWith<UserPasswordInvalid> {
             val password = "a".repeat(65)
@@ -33,6 +39,13 @@ class InputValidatorTest {
         assertFailsWith<UserEmailInvalid> {
             val emailOutOufBounds = "a".repeat(256)
             InputValidator.validateEmail(emailOutOufBounds)
+        }
+    }
+
+    @Test
+    fun `email is blank`() {
+        assertFailsWith<UserEmailInvalid> {
+            InputValidator.validateEmail("")
         }
     }
 
@@ -83,6 +96,13 @@ class InputValidatorTest {
     fun `name is too long`() {
         assertFailsWith<UserNameInvalid> {
             InputValidator.validateUsername("a".repeat(31))
+        }
+    }
+
+    @Test
+    fun `name is blank`() {
+        assertFailsWith<UserNameInvalid> {
+            InputValidator.validateUsername("")
         }
     }
 
