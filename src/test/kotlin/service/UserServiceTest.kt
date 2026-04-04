@@ -5,9 +5,9 @@ import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.generic.UserRole
 import app.sotchi.dto.user.*
+import app.sotchi.persistence.UserTable
 import app.sotchi.repository.UserRepository
 import app.sotchi.repository.UserRepositoryDbImpl
-import app.sotchi.persistence.UserTable
 import app.sotchi.service.UserService
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
