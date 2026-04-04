@@ -40,6 +40,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("de.mkammerer:argon2-jvm:2.12")
+    implementation("io.ktor:ktor-server-status-pages:3.4.1")
 
 }
 
