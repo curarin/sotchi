@@ -1,0 +1,63 @@
+package app.sotchi.plugins
+
+import app.sotchi.domain.exception.EmailAlreadyInUseException
+import app.sotchi.domain.exception.UserNotAuthenticated
+import app.sotchi.domain.exception.UserNotFoundException
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.SerializationException
+
+@OptIn(ExperimentalSerializationApi::class)
+fun Application.configureStatusPages() {
+    install(StatusPages) {
+        exception<BadRequestException> { call, cause ->
+            call.application.log.warn("Bad request: ${cause.message}", cause)
+
+            val root = cause.cause?.cause ?: cause.cause
+
+            val message = when (root) {
+                is MissingFieldException -> {
+                    "Missing field: ${root.missingFields}"
+                }
+                is SerializationException -> {
+                    "Invalid field type or format"
+                }
+                else -> {
+                    root?.message ?: "Invalid request body"
+                }
+            }
+
+            call.respond(
+                HttpStatusCode.BadRequest,
+                mapOf(
+                    "error" to "INVALID_REQUEST",
+                    "message" to message
+                )
+            )
+        }
+
+        exception<Throwable> { call, cause ->
+            when (cause) {
+                is EmailAlreadyInUseException -> {
+                    call.respondText(text = "409: $cause", status = HttpStatusCode.Conflict)
+                }
+                is UserNotAuthenticated -> {
+                    call.respondText(text = "403: User not authenticated", status = HttpStatusCode.Forbidden)
+                }
+                is UserNotFoundException -> {
+                    call.respondText(text = "404: User not found", status = HttpStatusCode.NotFound)
+                }
+
+                else -> {
+                    call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
+                }
+            }
+        }
+    }
+
+}
