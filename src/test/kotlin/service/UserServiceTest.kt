@@ -15,8 +15,8 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.test.BeforeTest
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
@@ -30,7 +30,7 @@ class UserServiceTest {
     /**
      * Setup which runs before each of the other tests. Inits an in-memory mock repository.
      */
-    @BeforeEach
+    @BeforeTest
     fun setup() {
         Database.connect(
             url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
