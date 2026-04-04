@@ -1,8 +1,6 @@
 package app.sotchi.plugins
 
-import app.sotchi.domain.exception.EmailAlreadyInUseException
-import app.sotchi.domain.exception.UserNotAuthenticated
-import app.sotchi.domain.exception.UserNotFoundException
+import app.sotchi.domain.exception.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -51,6 +49,15 @@ fun Application.configureStatusPages() {
                 }
                 is UserNotFoundException -> {
                     call.respondText(text = "404: User not found", status = HttpStatusCode.NotFound)
+                }
+                is UserNameInvalid -> {
+                    call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
+                }
+                is UserEmailInvalid -> {
+                    call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
+                }
+                is UserPasswordInvalid -> {
+                    call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
                 }
 
                 else -> {
