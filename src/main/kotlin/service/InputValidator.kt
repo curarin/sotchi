@@ -34,7 +34,7 @@ object InputValidator {
 
         if (countAtSigns > 0 || countDotChars > 0) {
             throw UserEmailInvalid("Email must contain (at maximum) one the following signs: '@', '.'")
-        }  else if (emailLength !in 1..64 ) {
+        } else if (emailLength !in 1..64) {
             throw UserEmailInvalid("Email must be between 1 and 64 characters")
         }
     }

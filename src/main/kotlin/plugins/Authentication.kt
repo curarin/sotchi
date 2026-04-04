@@ -17,11 +17,13 @@ fun Application.configureAuthentication() {
     install(Authentication) {
         jwt("auth-jwt") {
             realm = myRealm
-            verifier(JWT
-                .require(Algorithm.HMAC256(secret))
-                .withAudience(audience)
-                .withIssuer(issuer)
-                .build())
+            verifier(
+                JWT
+                    .require(Algorithm.HMAC256(secret))
+                    .withAudience(audience)
+                    .withIssuer(issuer)
+                    .build()
+            )
 
             validate { credential ->
                 if (credential.payload.getClaim("userId").asString() != "") {

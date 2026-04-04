@@ -11,6 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 
 internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
+
 /**
  * Implementation of Database persistence setup.
  */

@@ -26,6 +26,7 @@ class InputValidatorTest {
             InputValidator.validatePassword("")
         }
     }
+
     @Test
     fun `password too long`() {
         assertFailsWith<UserPasswordInvalid> {

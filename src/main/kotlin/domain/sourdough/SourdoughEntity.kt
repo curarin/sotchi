@@ -17,4 +17,4 @@ data class SourdoughEntity(
     val lastModifiedAtDt: Instant,
     val lastTimeFedDt: Instant,
     var deletedAtDt: Instant?
-    )
+)

@@ -48,11 +48,13 @@ class UserServiceTest {
         }
         userRepository = UserRepositoryDbImpl()//UserRepositoryInMemoryImpl()
         userService = UserService(userRepository)
-        userService.create(UserCreateDTO(
-            name = "test",
-            email = "email@test.com",
-            password = "test"
-        ))
+        userService.create(
+            UserCreateDTO(
+                name = "test",
+                email = "email@test.com",
+                password = "test"
+            )
+        )
     }
 
     /**
@@ -175,11 +177,13 @@ class UserServiceTest {
      */
     @Test
     fun `create() sets default user role to standard`() {
-        val userIsCreated = userService.create(UserCreateDTO(
-            name = "test",
-            email = "test2@example.com",
-            password = "test"
-        ))
+        val userIsCreated = userService.create(
+            UserCreateDTO(
+                name = "test",
+                email = "test2@example.com",
+                password = "test"
+            )
+        )
 
         val createdUser = userRepository.findByEmail("test2@example.com")
         assertTrue(userIsCreated)
@@ -193,10 +197,12 @@ class UserServiceTest {
      */
     @Test
     fun `login() returns correct default user role`() {
-        val loggedInUser = userService.login(UserLoginDTO(
-            email = "email@test.com",
-            password = "test"
-        ))
+        val loggedInUser = userService.login(
+            UserLoginDTO(
+                email = "email@test.com",
+                password = "test"
+            )
+        )
         assertTrue(loggedInUser.role == UserRole.STANDARD)
     }
 }

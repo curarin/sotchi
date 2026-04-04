@@ -19,7 +19,8 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
         val dto = call.receive<CreateSourdoughDTO>()
 
         // ToDo: Auth / JWT Implementierung > userID wird dann von dort geholt
-        val userId = call.request.headers["user-id"]?.toIntOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
+        val userId =
+            call.request.headers["user-id"]?.toIntOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
         val createdSourdough = sourdoughService.createSourdough(dto = dto, userId = userId)
         call.respond(
             createdSourdough,
