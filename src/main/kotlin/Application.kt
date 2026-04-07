@@ -8,11 +8,11 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureRatelimit()
     configureAuthentication()
     configureResources()
     configureDatabases()
     configureStatusPages()
     configureRouting()
     configureSerialization()
-
 }
