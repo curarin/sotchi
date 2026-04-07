@@ -12,6 +12,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
@@ -21,64 +22,67 @@ import java.util.*
 
 
 fun Route.userRoutesV1(userService: UserService) {
-    /**
-     * Creates a new account for a new user.
-     */
-    post<UserAuth.Create> {
-        val user = call.receive<UserCreateDTO>()
-        userService.create(user)
-        call.respond(HttpStatusCode.Created)
-    }
-    /**
-     * Login for an existing user.
-     */
-    post<UserAuth.Login> {
-        val user = call.receive<UserLoginDTO>()
-        val loggedInUser = userService.login(user)
-        val jwtToken = JWT.create()
-            .withAudience(environment.config.property("ktor.jwt.audience").getString())
-            .withIssuer(environment.config.property("ktor.jwt.issuer").getString())
-            .withClaim("userId", loggedInUser.id)
-            .withClaim("role", loggedInUser.role.toString())
-            .withExpiresAt(Date(System.currentTimeMillis() + 60000))
-            .sign(Algorithm.HMAC256(environment.config.property("ktor.jwt.secret").getString()))
-        call.respond(HttpStatusCode.OK, hashMapOf("token" to jwtToken))
-    }
 
-    authenticate("auth-jwt") {
+    rateLimit(RateLimitName("public")) {
         /**
-         * Returns user profile data.
+         * Creates a new account for a new user.
          */
-        get<UserAuth.Read> {
-            val user = call.principal<JWTPrincipal>()
-            val userId = user!!.payload.getClaim("userId").asInt()
-            val userRole = UserRole.valueOf(user.payload.getClaim("role").asString())
-            val expiresAt = user.expiresAt?.time?.minus(System.currentTimeMillis())
-            application.environment.log.info("JWT token received: userId $userId, userRole $userRole, expires at $expiresAt ms")
-            val existingUser = userService.read(UserReadDTO(userId))
-            call.respond(HttpStatusCode.OK, existingUser)
+        post<UserAuth.Create> {
+            val user = call.receive<UserCreateDTO>()
+            userService.create(user)
+            call.respond(HttpStatusCode.Created)
         }
-
         /**
-         * Modification for a user profile.
+         * Login for an existing user.
          */
-        patch<UserAuth.Update> {
-            val userWithUpdatedData = call.receive<UserUpdateDTO>()
-            val user = call.principal<JWTPrincipal>()
-            val userId = user!!.payload.getClaim("userId").asInt()
-            application.environment.log.info("JWT token received: userId $userId")
-            val userIsModified = userService.update(userId = userId, dto = userWithUpdatedData)
-            call.respond(HttpStatusCode.OK, userIsModified)
+        post<UserAuth.Login> {
+            val user = call.receive<UserLoginDTO>()
+            val loggedInUser = userService.login(user)
+            val jwtToken = JWT.create().withAudience(environment.config.property("ktor.jwt.audience").getString())
+                .withIssuer(environment.config.property("ktor.jwt.issuer").getString())
+                .withClaim("userId", loggedInUser.id).withClaim("role", loggedInUser.role.toString())
+                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                .sign(Algorithm.HMAC256(environment.config.property("ktor.jwt.secret").getString()))
+            call.respond(HttpStatusCode.OK, hashMapOf("token" to jwtToken))
         }
+    }
 
-        /**
-         * Deletes a users profile.
-         */
-        delete<UserAuth.Delete> {
-            val user = call.principal<JWTPrincipal>()
-            val userId = user!!.payload.getClaim("userId").asInt()
-            userService.delete(userId)
-            call.respond(HttpStatusCode.OK)
+    rateLimit(RateLimitName("protected")) {
+        authenticate("auth-jwt") {
+            /**
+             * Returns user profile data.
+             */
+            get<UserAuth.Read> {
+                val user = call.principal<JWTPrincipal>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                val userRole = UserRole.valueOf(user.payload.getClaim("role").asString())
+                val expiresAt = user.expiresAt?.time?.minus(System.currentTimeMillis())
+                application.environment.log.info("JWT token received: userId $userId, userRole $userRole, expires at $expiresAt ms")
+                val existingUser = userService.read(UserReadDTO(userId))
+                call.respond(HttpStatusCode.OK, existingUser)
+            }
+
+            /**
+             * Modification for a user profile.
+             */
+            patch<UserAuth.Update> {
+                val userWithUpdatedData = call.receive<UserUpdateDTO>()
+                val user = call.principal<JWTPrincipal>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                application.environment.log.info("JWT token received: userId $userId")
+                val userIsModified = userService.update(userId = userId, dto = userWithUpdatedData)
+                call.respond(HttpStatusCode.OK, userIsModified)
+            }
+
+            /**
+             * Deletes a users profile.
+             */
+            delete<UserAuth.Delete> {
+                val user = call.principal<JWTPrincipal>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                userService.delete(userId)
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
