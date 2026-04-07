@@ -51,7 +51,7 @@ class UserService(
 
         if (
             dto.email != null &&
-            dto.email != existingUser.email
+            dto.email == existingUser.email
         ) {
             throw EmailAlreadyInUseException()
         }
