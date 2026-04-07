@@ -105,10 +105,9 @@ class UserServiceTest {
     @Test
     fun `update() updates user password`() {
         val updatedUser = UserUpdateDTO(
-            name = "test1",
             password = "newPassword123"
         )
-        userService.update(1, updatedUser)
+        assertTrue(userService.update(1, updatedUser))
         assertFailsWith<UserNotAuthenticated> {
             userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
         }
@@ -116,6 +115,32 @@ class UserServiceTest {
         val authenticatedUser = userService.login(UserLoginDTO(email = "email@test.com", password = "newPassword123"))
         assertNotNull(authenticatedUser)
         assertEquals(1, authenticatedUser.id)
+    }
+
+    /**
+     * validates that the user updates their email
+     */
+    @Test
+    fun `update() updates user email`() {
+        // Login with old account works
+        assertNotNull(userService.login(UserLoginDTO(email = "email@test.com", password = "test")))
+
+        // After that we update the Email
+        val updatedUser = UserUpdateDTO(
+            name = "test1",
+            email = "email_after_update@test.com"
+        )
+        assertTrue(userService.update(1, updatedUser))
+        // If login works as intended we get the AuthenticationDTO back
+        val authenticatedUser =
+            userService.login(UserLoginDTO(email = "email_after_update@test.com", password = "test"))
+        assertNotNull(authenticatedUser)
+        assertEquals(1, authenticatedUser.id)
+
+        // Login with old email doesn't work anymore
+        assertFailsWith<UserNotFoundException> {
+            userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
+        }
     }
 
     /**
