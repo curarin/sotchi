@@ -9,7 +9,11 @@ import app.sotchi.dto.user.*
 import app.sotchi.repository.UserRepository
 import app.sotchi.security.Encryption
 import io.ktor.util.logging.*
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
 
@@ -19,6 +23,7 @@ class UserService(
     /**
      * User creates a new account.
      */
+    @OptIn(ExperimentalUuidApi::class)
     fun create(dto: UserCreateDTO): Boolean {
         val existingUser = userRepository.findByEmail(dto.email)
         if (existingUser != null) {
@@ -35,7 +40,9 @@ class UserService(
             password = Encryption().hashPassword(dto.password.toCharArray()),
             createdAtDt = now,
             role = UserRole.STANDARD,
-            lastModifiedDt = now
+            lastModifiedDt = now,
+            activationToken = Uuid.random().toString(),
+            activationTokenValidUntil = now.plus(5, DateTimeUnit.MINUTE)
         )
 
         userRepository.save(newUser)
@@ -66,10 +73,17 @@ class UserService(
             )
             userRepository.save(updatedUser)
         } else {
+            // Wir prüfen ob aus dem Update DTO ein Activation Boolean da ist - wenn nicht, wird der aus dem bestehenden User genommen
+            val activationStatusWillBeUpdated = dto.activated ?: existingUser.activated
+
             val updatedUser = existingUser.copy(
                 name = dto.name ?: existingUser.name,
                 email = dto.email?.trim()?.lowercase() ?: existingUser.email,
                 password = existingUser.password,
+                activated = dto.activated ?: existingUser.activated,
+                // Wir prüfen ob der bestehende User einen Activation Status auf false hat & ob der Activation Status updated wird (aka aus dem DTO auf true ist)
+                // In diesen Fällen setzen wir den ActivationDT auf "NOW", ansonsten übernehmen wir was vorher drinnen stand (null oder der erstmals gesetzte DT)
+                activatedAtDt = if (!existingUser.activated && activationStatusWillBeUpdated) Clock.System.now() else existingUser.activatedAtDt,
                 lastModifiedDt = Clock.System.now()
             )
             userRepository.save(updatedUser)
@@ -113,7 +127,9 @@ class UserService(
         return UserProfileDTO(
             name = readUser.name,
             email = readUser.email,
-            createdAtDt = readUser.createdAtDt
+            createdAtDt = readUser.createdAtDt,
+            activated = readUser.activated,
+            activatedAtDt = readUser.activatedAtDt,
         )
     }
 }

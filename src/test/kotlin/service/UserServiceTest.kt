@@ -5,6 +5,8 @@ import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.generic.UserRole
 import app.sotchi.dto.user.*
+import app.sotchi.persistence.UserActivationTable
+import app.sotchi.persistence.UserRoleTable
 import app.sotchi.persistence.UserTable
 import app.sotchi.repository.UserRepository
 import app.sotchi.repository.UserRepositoryDbImpl
@@ -16,9 +18,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import kotlin.test.BeforeTest
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotNull
+import kotlin.test.*
 
 /**
  * Tests the logic of user service.
@@ -39,20 +39,18 @@ class UserServiceTest {
             password = "",
             databaseConfig = DatabaseConfig {
                 defaultMaxAttempts = 3
-            }
-        )
+            })
 
         transaction {
-            SchemaUtils.drop(UserTable)
-            SchemaUtils.create(UserTable)
+            SchemaUtils.drop(UserRoleTable, UserActivationTable, UserTable)
+
+            SchemaUtils.create(UserTable, UserRoleTable, UserActivationTable)
         }
         userRepository = UserRepositoryDbImpl()//UserRepositoryInMemoryImpl()
         userService = UserService(userRepository)
         userService.create(
             UserCreateDTO(
-                name = "test",
-                email = "email@test.com",
-                password = "test"
+                name = "test", email = "email@test.com", password = "test"
             )
         )
     }
@@ -127,8 +125,7 @@ class UserServiceTest {
 
         // After that we update the Email
         val updatedUser = UserUpdateDTO(
-            name = "test1",
-            email = "email_after_update@test.com"
+            name = "test1", email = "email_after_update@test.com"
         )
         assertTrue(userService.update(1, updatedUser))
         // If login works as intended we get the AuthenticationDTO back
@@ -192,7 +189,9 @@ class UserServiceTest {
         val expected = UserProfileDTO(
             name = "test",
             email = "email@test.com",
-            createdAtDt = result.createdAtDt
+            createdAtDt = result.createdAtDt,
+            activated = false,
+            activatedAtDt = null
         )
         assertEquals(expected, result)
     }
@@ -204,9 +203,7 @@ class UserServiceTest {
     fun `create() sets default user role to standard`() {
         val userIsCreated = userService.create(
             UserCreateDTO(
-                name = "test",
-                email = "test2@example.com",
-                password = "test"
+                name = "test", email = "test2@example.com", password = "test"
             )
         )
 
@@ -224,10 +221,78 @@ class UserServiceTest {
     fun `login() returns correct default user role`() {
         val loggedInUser = userService.login(
             UserLoginDTO(
-                email = "email@test.com",
-                password = "test"
+                email = "email@test.com", password = "test"
             )
         )
         assertTrue(loggedInUser.role == UserRole.STANDARD)
+    }
+
+    /**
+     * Validates that a fresh created user is not yet activated.
+     */
+    @Test
+    fun `fresh account is not activated yet`() {
+        val existingUser = userService.read(UserReadDTO(id = 1))
+        assertFalse(existingUser.activated)
+    }
+
+    /**
+     * Validate that a user activation returns an activated user profile.
+     */
+    @Test
+    fun `updated account is activated`() {
+        val updateUser = UserUpdateDTO(
+            activated = true
+        )
+        val updatedUser = userService.update(
+            userId = 1, dto = updateUser
+        )
+        assertTrue(updatedUser)
+        assertTrue(userService.read(UserReadDTO(id = 1)).activated)
+    }
+
+    /**
+     * Validate the following process:
+     * -> User is created -> activation status is false -> activation timestamp is null
+     * -> User gets updated --> activation status is true -> activation timestamp is set
+     * -> User gets updated again with some other data -> activation status remains true -> activation status remains the very first one (no overwriting happening)
+     */
+    @Test
+    fun `activation timestamps are correctly calculated`() {
+        // User is created -> we expect the activation status to be false && activation timestamp to be null
+        val newCreatedUser = userService.create(
+            UserCreateDTO(
+                name = "test123", email = "test55@example.com", password = "test"
+            )
+        )
+        assertTrue(newCreatedUser)
+        assertFalse(userService.read(UserReadDTO(id = 2)).activated)
+        assertNull(userService.read(UserReadDTO(id = 2)).activatedAtDt)
+
+        // User gets updated -> we expect the status to go to true -> and the timestamp to be set
+        val updatedUser = UserUpdateDTO(
+            activated = true
+        )
+        val userIsUpdated = userService.update(userId = 2, dto = updatedUser)
+        val firstTimeActivatedAtDt = userService.read(UserReadDTO(id = 2)).activatedAtDt
+        assertTrue(userIsUpdated)
+        assertTrue(userService.read(UserReadDTO(id = 2)).activated)
+        assertNotNull(firstTimeActivatedAtDt)
+
+        // User gets updated again with some other data -> activation remains true -> activation timestamp stays the same
+        val anotherUpdatedUser = UserUpdateDTO(
+            name = "Pablo di Escobar"
+        )
+        assertTrue(userService.update(userId = 2, anotherUpdatedUser))
+        assertEquals("Pablo di Escobar", userService.read(UserReadDTO(id = 2)).name)
+        assertEquals(firstTimeActivatedAtDt, userService.read(UserReadDTO(id = 2)).activatedAtDt)
+
+        // Now we also test that - in whatever case the user re-activates their account - we still keep the first time they activated
+        val thirdUpdatedUser = UserUpdateDTO(
+            activated = true
+        )
+        assertTrue(userService.update(userId = 2, thirdUpdatedUser))
+        assertEquals("Pablo di Escobar", userService.read(UserReadDTO(id = 2)).name)
+        assertEquals(firstTimeActivatedAtDt, userService.read(UserReadDTO(id = 2)).activatedAtDt)
     }
 }
