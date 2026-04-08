@@ -31,6 +31,10 @@ class UserService(
             throw EmailAlreadyInUseException()
         }
 
+        InputValidator.validateUsername(dto.name)
+        InputValidator.validatePassword(dto.password)
+        InputValidator.validateEmail(dto.email)
+
         val now = Clock.System.now()
 
         val newUser = UserEntity(
@@ -56,11 +60,16 @@ class UserService(
     fun update(userId: Int, dto: UserUpdateDTO): Boolean {
         val existingUser = userRepository.findById(userId) ?: throw UserNotFoundException()
 
-        if (
-            dto.email != null &&
-            dto.email == existingUser.email
-        ) {
+        if (dto.email != null && dto.email == existingUser.email) {
             throw EmailAlreadyInUseException()
+        }
+
+        if (dto.email != null) {
+            InputValidator.validateEmail(dto.email)
+        } else if (dto.password != null) {
+            InputValidator.validatePassword(dto.password)
+        } else if (dto.name != null) {
+            InputValidator.validateUsername(dto.name)
         }
 
         if (dto.password != null) {
@@ -109,8 +118,7 @@ class UserService(
         if (userIsAuthenticated) {
             LOGGER.info("[service login] User is authenticated: ${loggedInUser.id}")
             return UserAuthenticationDTO(
-                id = loggedInUser.id,
-                role = loggedInUser.role
+                id = loggedInUser.id, role = loggedInUser.role
             )
         } else {
             LOGGER.warn("[login] User is not authenticated: ${dto.email}")
