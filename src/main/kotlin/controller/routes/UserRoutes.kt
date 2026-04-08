@@ -10,8 +10,10 @@ import app.sotchi.service.UserService
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
@@ -22,12 +24,12 @@ import java.util.*
 
 
 fun Route.userRoutesV1(userService: UserService) {
-
     rateLimit(RateLimitName("public")) {
         /**
          * Creates a new account for a new user.
          */
         post<UserAuth.Create> {
+            call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
             val user = call.receive<UserCreateDTO>()
             userService.create(user)
             call.respond(HttpStatusCode.Created)
@@ -36,6 +38,7 @@ fun Route.userRoutesV1(userService: UserService) {
          * Login for an existing user.
          */
         post<UserAuth.Login> {
+            call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
             val user = call.receive<UserLoginDTO>()
             val loggedInUser = userService.login(user)
             val jwtToken = JWT.create().withAudience(environment.config.property("ktor.jwt.audience").getString())
@@ -54,6 +57,7 @@ fun Route.userRoutesV1(userService: UserService) {
              * Returns user profile data.
              */
             get<UserAuth.Read> {
+                call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
                 val user = call.principal<JWTPrincipal>()
                 val userId = user!!.payload.getClaim("userId").asInt()
                 val userRole = UserRole.valueOf(user.payload.getClaim("role").asString())
@@ -67,6 +71,7 @@ fun Route.userRoutesV1(userService: UserService) {
              * Modification for a user profile.
              */
             patch<UserAuth.Update> {
+                call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
                 val userWithUpdatedData = call.receive<UserUpdateDTO>()
                 val user = call.principal<JWTPrincipal>()
                 val userId = user!!.payload.getClaim("userId").asInt()
@@ -79,6 +84,7 @@ fun Route.userRoutesV1(userService: UserService) {
              * Deletes a users profile.
              */
             delete<UserAuth.Delete> {
+                call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
                 val user = call.principal<JWTPrincipal>()
                 val userId = user!!.payload.getClaim("userId").asInt()
                 userService.delete(userId)
