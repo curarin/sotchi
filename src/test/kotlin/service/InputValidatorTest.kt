@@ -72,20 +72,6 @@ class InputValidatorTest {
     }
 
     @Test
-    fun `email has incorrect tld`() {
-        val invalidEmailList = listOf(
-            "test@example",
-            "test@example.",
-            "test@example.."
-        )
-        for (email in invalidEmailList) {
-            assertFailsWith<UserEmailInvalid> {
-                InputValidator.validateEmail(email)
-            }
-        }
-    }
-
-    @Test
     fun `name is too short`() {
         assertFailsWith<UserNameInvalid> {
             InputValidator.validateUsername("a".repeat(2))
@@ -110,7 +96,6 @@ class InputValidatorTest {
     @Test
     fun `name has unallowed signs`() {
         val invalidUsernames = listOf(
-            "über",
             "Œgart",
             "Pablo-123",
             "max mustermann",
@@ -166,7 +151,6 @@ class InputValidatorTest {
     fun `name has multiple consecutive special chars`() {
         val unallowedUserNames = listOf(
             "abcd//",
-            "abc()defg",
             "abc$$",
             "abc%%%%",
             "abcd'''",

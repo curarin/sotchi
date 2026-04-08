@@ -32,8 +32,10 @@ object InputValidator {
         val countAtSigns = email.count { char -> char == '@' }
         val countDotChars = email.count { char -> char == '.' }
 
-        if (countAtSigns > 0 || countDotChars > 0) {
-            throw UserEmailInvalid("Email must contain (at maximum) one the following signs: '@', '.'")
+        if (countAtSigns > 1 || countAtSigns == 0) {
+            throw UserEmailInvalid("Email must contain at maximum one '@' character")
+        } else if (countDotChars > 2) {
+            throw UserEmailInvalid("Email must contain at maximum three '.' characters")
         } else if (emailLength !in 1..64) {
             throw UserEmailInvalid("Email must be between 1 and 64 characters")
         }
@@ -46,13 +48,13 @@ object InputValidator {
      */
     fun validateUsername(username: String) {
         val nameLength = username.length
-        val hasOnlyAsciiChars = Regex("[a-zA-Z0-9]*$").containsMatchIn(username)
+        val hasOnlyAsciiChars = Regex("^[a-zA-Z0-9]*$").containsMatchIn(username)
 
         if (nameLength !in 3..30) {
             throw UserNameInvalid("Username must contain at least 3 and at most 30 characters")
         } else if (username.startsWith(" ") || username.endsWith(" ")) {
             throw UserNameInvalid("Username must not start or end with empty spaces")
-        } else if (hasOnlyAsciiChars) {
+        } else if (!hasOnlyAsciiChars) {
             throw UserNameInvalid("Username must only contain ASCII characters")
         }
     }
