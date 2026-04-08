@@ -4,7 +4,6 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cachingheaders.*
-import io.ktor.server.sessions.Cache
 
 /**
  * As mentioned in this article -> https://www.debugbear.com/docs/http-cache-control-header

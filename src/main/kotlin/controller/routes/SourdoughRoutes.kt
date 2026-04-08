@@ -5,8 +5,6 @@ import app.sotchi.dto.sourdough.CreateSourdoughDTO
 import app.sotchi.dto.sourdough.DeleteSourdoughDTO
 import app.sotchi.service.SourdoughService
 import io.ktor.http.*
-import io.ktor.http.content.*
-import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
