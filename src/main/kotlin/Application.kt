@@ -9,6 +9,7 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     configureRatelimit()
+    configureCaching()
     configureAuthentication()
     configureResources()
     configureDatabases()
