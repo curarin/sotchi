@@ -50,7 +50,7 @@ class UserServiceTest {
         userService = UserService(userRepository)
         userService.create(
             UserCreateDTO(
-                name = "test", email = "email@test.com", password = "test"
+                name = "test12345", email = "email@test.com", password = "test12345"
             )
         )
     }
@@ -61,7 +61,7 @@ class UserServiceTest {
     @Test
     fun `create() creates user`() {
         val userIsCreated = this.userService.create(
-            UserCreateDTO("Paul", "paul@test.com", "test")
+            UserCreateDTO("Paul", "paul@test.com", "test12345")
         )
         assertTrue(userIsCreated)
         assertEquals("Paul", userRepository.findByEmail("paul@test.com")?.name)
@@ -73,7 +73,7 @@ class UserServiceTest {
      */
     @Test
     fun `create() throws EmailAlreadyInUseException if user already exists`() {
-        val createDTO = UserCreateDTO("Paul", "paul@test.com", "test")
+        val createDTO = UserCreateDTO("Paul", "paul@test.com", "test12345")
         this.userService.create(createDTO)
         assertFailsWith<EmailAlreadyInUseException> {
             this.userService.create(createDTO)
@@ -107,7 +107,7 @@ class UserServiceTest {
         )
         assertTrue(userService.update(1, updatedUser))
         assertFailsWith<UserNotAuthenticated> {
-            userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
+            userService.login(UserLoginDTO(email = "email@test.com", password = "test12345"))
         }
         // If login works as intended we get the AuthenticationDTO back
         val authenticatedUser = userService.login(UserLoginDTO(email = "email@test.com", password = "newPassword123"))
@@ -121,7 +121,7 @@ class UserServiceTest {
     @Test
     fun `update() updates user email`() {
         // Login with old account works
-        assertNotNull(userService.login(UserLoginDTO(email = "email@test.com", password = "test")))
+        assertNotNull(userService.login(UserLoginDTO(email = "email@test.com", password = "test12345")))
 
         // After that we update the Email
         val updatedUser = UserUpdateDTO(
@@ -130,13 +130,13 @@ class UserServiceTest {
         assertTrue(userService.update(1, updatedUser))
         // If login works as intended we get the AuthenticationDTO back
         val authenticatedUser =
-            userService.login(UserLoginDTO(email = "email_after_update@test.com", password = "test"))
+            userService.login(UserLoginDTO(email = "email_after_update@test.com", password = "test12345"))
         assertNotNull(authenticatedUser)
         assertEquals(1, authenticatedUser.id)
 
         // Login with old email doesn't work anymore
         assertFailsWith<UserNotFoundException> {
-            userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
+            userService.login(UserLoginDTO(email = "email@test.com", password = "test12345"))
         }
     }
 
@@ -154,7 +154,7 @@ class UserServiceTest {
      */
     @Test
     fun `login() for successful user returns correct ID`() {
-        val result = this.userService.login(UserLoginDTO(email = "email@test.com", password = "test"))
+        val result = this.userService.login(UserLoginDTO(email = "email@test.com", password = "test12345"))
         assertEquals(1, result.id)
         assertEquals(UserRole.STANDARD, result.role)
     }
@@ -165,7 +165,7 @@ class UserServiceTest {
     @Test
     fun `login() fails if email is not found`() {
         assertFailsWith<UserNotFoundException> {
-            this.userService.login(UserLoginDTO(email = "test", password = "test"))
+            this.userService.login(UserLoginDTO(email = "test12345", password = "test12345"))
         }
     }
 
@@ -187,7 +187,7 @@ class UserServiceTest {
         val result = userService.read(UserReadDTO(id = 1))
 
         val expected = UserProfileDTO(
-            name = "test",
+            name = "test12345",
             email = "email@test.com",
             createdAtDt = result.createdAtDt,
             activated = false,
@@ -203,7 +203,7 @@ class UserServiceTest {
     fun `create() sets default user role to standard`() {
         val userIsCreated = userService.create(
             UserCreateDTO(
-                name = "test", email = "test2@example.com", password = "test"
+                name = "test12345", email = "test2@example.com", password = "test12345"
             )
         )
 
@@ -221,7 +221,7 @@ class UserServiceTest {
     fun `login() returns correct default user role`() {
         val loggedInUser = userService.login(
             UserLoginDTO(
-                email = "email@test.com", password = "test"
+                email = "email@test.com", password = "test12345"
             )
         )
         assertTrue(loggedInUser.role == UserRole.STANDARD)
@@ -262,7 +262,7 @@ class UserServiceTest {
         // User is created -> we expect the activation status to be false && activation timestamp to be null
         val newCreatedUser = userService.create(
             UserCreateDTO(
-                name = "test123", email = "test55@example.com", password = "test"
+                name = "test123", email = "test55@example.com", password = "test12345"
             )
         )
         assertTrue(newCreatedUser)
@@ -281,10 +281,10 @@ class UserServiceTest {
 
         // User gets updated again with some other data -> activation remains true -> activation timestamp stays the same
         val anotherUpdatedUser = UserUpdateDTO(
-            name = "Pablo di Escobar"
+            name = "PabloDiEscobar"
         )
         assertTrue(userService.update(userId = 2, anotherUpdatedUser))
-        assertEquals("Pablo di Escobar", userService.read(UserReadDTO(id = 2)).name)
+        assertEquals("PabloDiEscobar", userService.read(UserReadDTO(id = 2)).name)
         assertEquals(firstTimeActivatedAtDt, userService.read(UserReadDTO(id = 2)).activatedAtDt)
 
         // Now we also test that - in whatever case the user re-activates their account - we still keep the first time they activated
@@ -292,7 +292,7 @@ class UserServiceTest {
             activated = true
         )
         assertTrue(userService.update(userId = 2, thirdUpdatedUser))
-        assertEquals("Pablo di Escobar", userService.read(UserReadDTO(id = 2)).name)
+        assertEquals("PabloDiEscobar", userService.read(UserReadDTO(id = 2)).name)
         assertEquals(firstTimeActivatedAtDt, userService.read(UserReadDTO(id = 2)).activatedAtDt)
     }
 }
