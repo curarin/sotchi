@@ -1,5 +1,7 @@
 package app.sotchi.plugins
 
+import app.sotchi.persistence.UserActivationTable
+import app.sotchi.persistence.UserRoleTable
 import app.sotchi.persistence.UserTable
 import io.ktor.server.application.*
 import org.jetbrains.exposed.v1.core.DatabaseConfig
@@ -18,6 +20,6 @@ fun Application.configureDatabases() {
         }
     )
     transaction {
-        SchemaUtils.create(UserTable)
+        SchemaUtils.create(UserTable, UserRoleTable, UserActivationTable)
     }
 }

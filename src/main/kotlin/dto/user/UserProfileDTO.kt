@@ -10,5 +10,7 @@ import kotlin.time.Instant
 data class UserProfileDTO(
     val name: String,
     val email: String,
-    val createdAtDt: Instant
+    val createdAtDt: Instant,
+    val activated: Boolean,
+    val activatedAtDt: Instant? = null
 )

@@ -1,6 +1,6 @@
 package app.sotchi.persistence
 
-import app.sotchi.domain.generic.UserRole
+import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.datetime.timestamp
 
@@ -11,5 +11,5 @@ object UserTable : IntIdTable("user") {
     val password = varchar("password", 256)
     val createdAtDt = timestamp("created_at_dt")
     val lastModifiedDt = timestamp("last_modified_dt")
-    val role = enumerationByName<UserRole>("role", 20)
+    val roleId = optReference("role_id", UserRoleTable.id, ReferenceOption.CASCADE)
 }

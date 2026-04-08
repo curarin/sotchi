@@ -1,14 +1,14 @@
 package app.sotchi.repository
 
 import app.sotchi.domain.user.UserEntity
+import app.sotchi.persistence.UserActivationTable
+import app.sotchi.persistence.UserRoleTable
 import app.sotchi.persistence.UserTable
 import io.ktor.util.logging.*
+import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.update
 
 internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
 
@@ -18,10 +18,14 @@ internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
 class UserRepositoryDbImpl : UserRepository {
     override fun findById(id: Int): UserEntity? {
         val row = transaction {
-            UserTable
-                .selectAll()
-                .where { UserTable.id eq id }
-                .singleOrNull()
+            UserTable.join(
+                UserRoleTable,
+                JoinType.INNER,
+                additionalConstraint = { UserTable.roleId eq UserRoleTable.id }).join(
+                UserActivationTable,
+                JoinType.INNER,
+                additionalConstraint = { UserTable.id eq UserActivationTable.userId }).selectAll()
+                .where { UserTable.id eq id }.singleOrNull()
         } ?: return null
 
         LOGGER.info("User found by id: $id")
@@ -32,17 +36,23 @@ class UserRepositoryDbImpl : UserRepository {
             email = row[UserTable.email],
             password = row[UserTable.password],
             createdAtDt = row[UserTable.createdAtDt],
-            role = row[UserTable.role],
-            lastModifiedDt = row[UserTable.lastModifiedDt]
+            role = row[UserRoleTable.role],
+            lastModifiedDt = row[UserTable.lastModifiedDt],
+            activated = row[UserActivationTable.activated],
+            activatedAtDt = row[UserActivationTable.activatedAtDt]
         )
     }
 
     override fun findByEmail(email: String): UserEntity? {
         val row = transaction {
-            UserTable
-                .selectAll()
-                .where { UserTable.email eq email }
-                .singleOrNull()
+            UserTable.join(
+                UserRoleTable,
+                JoinType.INNER,
+                additionalConstraint = { UserTable.roleId eq UserRoleTable.id }).join(
+                UserActivationTable,
+                JoinType.INNER,
+                additionalConstraint = { UserTable.id eq UserActivationTable.userId }).selectAll()
+                .where { UserTable.email eq email }.singleOrNull()
         } ?: return null
 
         LOGGER.info("User found by email: $email")
@@ -53,46 +63,88 @@ class UserRepositoryDbImpl : UserRepository {
             email = row[UserTable.email],
             password = row[UserTable.password],
             createdAtDt = row[UserTable.createdAtDt],
-            role = row[UserTable.role],
-            lastModifiedDt = row[UserTable.lastModifiedDt]
+            role = row[UserRoleTable.role],
+            lastModifiedDt = row[UserTable.lastModifiedDt],
+            activated = row[UserActivationTable.activated],
+            activatedAtDt = row[UserActivationTable.activatedAtDt]
         )
     }
 
     override fun save(user: UserEntity): UserEntity {
         // ToDo: Kompletter Yolohaufen diese Implementierung. Das muss noch eleganter gehen. Aber es funzt zumindest mal.
         val saveRow = transaction {
+            // User does not exist yet - we create a new one
             if (user.id == 0) {
-                val inserted = UserTable.insert {
+
+                // We try to find the user role with which the user was created
+                // In case the role does exist already we return the existing role id
+                // In case the role is new we insert it and return the id
+                val roleInserted =
+                    UserRoleTable.select(UserRoleTable.id).where { UserRoleTable.role eq user.role }.singleOrNull()
+                        ?.get(UserRoleTable.id) ?: UserRoleTable.insertAndGetId {
+                        it[role] = user.role
+                    }
+
+                val userInserted = UserTable.insert {
                     it[name] = user.name
                     it[email] = user.email
                     it[password] = user.password
                     it[createdAtDt] = user.createdAtDt
-                    it[role] = user.role
                     it[lastModifiedDt] = user.lastModifiedDt
+                    it[roleId] = roleInserted
                 }
 
-                val generatedId = inserted[UserTable.id].value
+                val activationInserted = UserActivationTable.insert {
+                    it[UserActivationTable.userId] = userInserted[UserTable.id].value
+                    it[activated] = false
+                    it[createdAtDt] = user.createdAtDt
+                    it[activationToken] = requireNotNull(user.activationToken)
+                    it[activationTokenValidUntil] = requireNotNull(user.activationTokenValidUntil)
+                }
 
-                LOGGER.info("New user inserted with id: $generatedId")
+                val generatedId = userInserted[UserTable.id].value
+                val activationToken = activationInserted[UserActivationTable.activationToken]
 
-                UserTable
-                    .selectAll()
-                    .where { UserTable.id eq generatedId }
-                    .single()
+                LOGGER.info("New user inserted with id: $generatedId - activation token: $activationToken - created role: $roleInserted")
+
+                UserTable.join(
+                    UserRoleTable, JoinType.INNER, additionalConstraint = { UserTable.roleId eq UserRoleTable.id })
+                    .join(
+                        UserActivationTable,
+                        JoinType.INNER,
+                        additionalConstraint = { UserTable.id eq UserActivationTable.userId }).selectAll()
+                    .where { UserTable.id eq generatedId }.single()
 
             } else {
+                // In case the role does exist already we return the existing role id
+                // In case the role is new we insert it and return the id
+                val roleInserted =
+                    UserRoleTable.select(UserRoleTable.id).where { UserRoleTable.role eq user.role }.singleOrNull()
+                        ?.get(UserRoleTable.id) ?: UserRoleTable.insertAndGetId {
+                        it[role] = user.role
+                    }
+
                 UserTable.update({ UserTable.id eq user.id }) {
                     it[name] = user.name
                     it[email] = user.email
                     it[password] = user.password
                     it[lastModifiedDt] = user.lastModifiedDt
+                    it[roleId] = roleInserted
+                }
+
+                UserActivationTable.update({ UserActivationTable.userId eq user.id }) {
+                    it[activated] = user.activated
+                    it[activatedAtDt] = user.activatedAtDt
                 }
 
                 LOGGER.info("Existing user updated with id ${user.id}")
-                UserTable
-                    .selectAll()
-                    .where { UserTable.id eq user.id }
-                    .single()
+                UserTable.join(
+                    UserRoleTable, JoinType.INNER, additionalConstraint = { UserTable.roleId eq UserRoleTable.id })
+                    .join(
+                        UserActivationTable,
+                        JoinType.INNER,
+                        additionalConstraint = { UserTable.id eq UserActivationTable.userId }).selectAll()
+                    .where { UserTable.id eq user.id }.single()
             }
         }
         return UserEntity(
@@ -101,8 +153,10 @@ class UserRepositoryDbImpl : UserRepository {
             email = saveRow[UserTable.email],
             password = saveRow[UserTable.password],
             createdAtDt = saveRow[UserTable.createdAtDt],
-            role = saveRow[UserTable.role],
-            lastModifiedDt = saveRow[UserTable.lastModifiedDt]
+            role = saveRow[UserRoleTable.role],
+            lastModifiedDt = saveRow[UserTable.lastModifiedDt],
+            activated = saveRow[UserActivationTable.activated],
+            activatedAtDt = saveRow[UserActivationTable.activatedAtDt]
         )
     }
 
