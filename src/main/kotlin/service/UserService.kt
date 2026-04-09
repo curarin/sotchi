@@ -136,7 +136,7 @@ class UserService(
             name = readUser.name,
             email = readUser.email,
             createdAtDt = readUser.createdAtDt,
-            activated = readUser.activated,
+            isActivated = readUser.activated,
             activatedAtDt = readUser.activatedAtDt,
         )
     }

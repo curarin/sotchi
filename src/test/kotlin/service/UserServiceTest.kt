@@ -190,7 +190,7 @@ class UserServiceTest {
             name = "test12345",
             email = "email@test.com",
             createdAtDt = result.createdAtDt,
-            activated = false,
+            isActivated = false,
             activatedAtDt = null
         )
         assertEquals(expected, result)
@@ -233,7 +233,7 @@ class UserServiceTest {
     @Test
     fun `fresh account is not activated yet`() {
         val existingUser = userService.read(UserReadDTO(id = 1))
-        assertFalse(existingUser.activated)
+        assertFalse(existingUser.isActivated)
     }
 
     /**
@@ -248,7 +248,7 @@ class UserServiceTest {
             userId = 1, dto = updateUser
         )
         assertTrue(updatedUser)
-        assertTrue(userService.read(UserReadDTO(id = 1)).activated)
+        assertTrue(userService.read(UserReadDTO(id = 1)).isActivated)
     }
 
     /**
@@ -266,7 +266,7 @@ class UserServiceTest {
             )
         )
         assertTrue(newCreatedUser)
-        assertFalse(userService.read(UserReadDTO(id = 2)).activated)
+        assertFalse(userService.read(UserReadDTO(id = 2)).isActivated)
         assertNull(userService.read(UserReadDTO(id = 2)).activatedAtDt)
 
         // User gets updated -> we expect the status to go to true -> and the timestamp to be set
@@ -276,7 +276,7 @@ class UserServiceTest {
         val userIsUpdated = userService.update(userId = 2, dto = updatedUser)
         val firstTimeActivatedAtDt = userService.read(UserReadDTO(id = 2)).activatedAtDt
         assertTrue(userIsUpdated)
-        assertTrue(userService.read(UserReadDTO(id = 2)).activated)
+        assertTrue(userService.read(UserReadDTO(id = 2)).isActivated)
         assertNotNull(firstTimeActivatedAtDt)
 
         // User gets updated again with some other data -> activation remains true -> activation timestamp stays the same
