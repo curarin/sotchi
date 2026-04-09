@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.datetime.timestamp
 
 object UserActivationTable : IntIdTable("user_activation") {
     val userId = optReference("user_id", UserTable.id, ReferenceOption.CASCADE)
-    val activated = bool("activated").default(false)
+    val isActivated = bool("activated").default(false)
     val createdAtDt = timestamp("created_at_dt")
     val activatedAtDt = timestamp("activated_at_dt").nullable()
     val activationToken = varchar("activation_token", 256).uniqueIndex()

@@ -38,7 +38,7 @@ class UserRepositoryDbImpl : UserRepository {
             createdAtDt = row[UserTable.createdAtDt],
             role = row[UserRoleTable.role],
             lastModifiedDt = row[UserTable.lastModifiedDt],
-            activated = row[UserActivationTable.activated],
+            activated = row[UserActivationTable.isActivated],
             activatedAtDt = row[UserActivationTable.activatedAtDt]
         )
     }
@@ -65,7 +65,7 @@ class UserRepositoryDbImpl : UserRepository {
             createdAtDt = row[UserTable.createdAtDt],
             role = row[UserRoleTable.role],
             lastModifiedDt = row[UserTable.lastModifiedDt],
-            activated = row[UserActivationTable.activated],
+            activated = row[UserActivationTable.isActivated],
             activatedAtDt = row[UserActivationTable.activatedAtDt]
         )
     }
@@ -96,7 +96,7 @@ class UserRepositoryDbImpl : UserRepository {
 
                 val activationInserted = UserActivationTable.insert {
                     it[UserActivationTable.userId] = userInserted[UserTable.id].value
-                    it[activated] = false
+                    it[isActivated] = false
                     it[createdAtDt] = user.createdAtDt
                     it[activationToken] = requireNotNull(user.activationToken)
                     it[activationTokenValidUntil] = requireNotNull(user.activationTokenValidUntil)
@@ -133,7 +133,7 @@ class UserRepositoryDbImpl : UserRepository {
                 }
 
                 UserActivationTable.update({ UserActivationTable.userId eq user.id }) {
-                    it[activated] = user.activated
+                    it[isActivated] = user.activated
                     it[activatedAtDt] = user.activatedAtDt
                 }
 
@@ -155,7 +155,7 @@ class UserRepositoryDbImpl : UserRepository {
             createdAtDt = saveRow[UserTable.createdAtDt],
             role = saveRow[UserRoleTable.role],
             lastModifiedDt = saveRow[UserTable.lastModifiedDt],
-            activated = saveRow[UserActivationTable.activated],
+            activated = saveRow[UserActivationTable.isActivated],
             activatedAtDt = saveRow[UserActivationTable.activatedAtDt]
         )
     }
