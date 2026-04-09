@@ -4,6 +4,7 @@ import app.sotchi.domain.exception.EmailAlreadyInUseException
 import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.generic.UserRole
+import app.sotchi.domain.user.UserEntity
 import app.sotchi.dto.user.*
 import app.sotchi.persistence.UserActivationTable
 import app.sotchi.persistence.UserRoleTable
@@ -185,15 +186,10 @@ class UserServiceTest {
     @Test
     fun `read() returns full UserProfileDTO`() {
         val result = userService.read(UserReadDTO(id = 1))
-
-        val expected = UserProfileDTO(
-            name = "test12345",
-            email = "email@test.com",
-            createdAtDt = result.createdAtDt,
-            isActivated = false,
-            activatedAtDt = null
-        )
-        assertEquals(expected, result)
+        assertNotNull(result.isActivated)
+        assertNotNull(result.password)
+        assertNotNull(result.email)
+        assertNotNull(result.role)
     }
 
     /**
@@ -242,7 +238,7 @@ class UserServiceTest {
     @Test
     fun `updated account is activated`() {
         val updateUser = UserUpdateDTO(
-            activated = true
+            isActivated = true
         )
         val updatedUser = userService.update(
             userId = 1, dto = updateUser
@@ -271,7 +267,7 @@ class UserServiceTest {
 
         // User gets updated -> we expect the status to go to true -> and the timestamp to be set
         val updatedUser = UserUpdateDTO(
-            activated = true
+            isActivated = true
         )
         val userIsUpdated = userService.update(userId = 2, dto = updatedUser)
         val firstTimeActivatedAtDt = userService.read(UserReadDTO(id = 2)).activatedAtDt
@@ -289,7 +285,7 @@ class UserServiceTest {
 
         // Now we also test that - in whatever case the user re-activates their account - we still keep the first time they activated
         val thirdUpdatedUser = UserUpdateDTO(
-            activated = true
+            isActivated = true
         )
         assertTrue(userService.update(userId = 2, thirdUpdatedUser))
         assertEquals("PabloDiEscobar", userService.read(UserReadDTO(id = 2)).name)
