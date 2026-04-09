@@ -83,16 +83,16 @@ class UserService(
             userRepository.save(updatedUser)
         } else {
             // Wir prüfen ob aus dem Update DTO ein Activation Boolean da ist - wenn nicht, wird der aus dem bestehenden User genommen
-            val activationStatusWillBeUpdated = dto.activated ?: existingUser.activated
+            val activationStatusWillBeUpdated = dto.isActivated ?: existingUser.isActivated
 
             val updatedUser = existingUser.copy(
                 name = dto.name ?: existingUser.name,
                 email = dto.email?.trim()?.lowercase() ?: existingUser.email,
                 password = existingUser.password,
-                activated = dto.activated ?: existingUser.activated,
+                isActivated = dto.isActivated ?: existingUser.isActivated,
                 // Wir prüfen ob der bestehende User einen Activation Status auf false hat & ob der Activation Status updated wird (aka aus dem DTO auf true ist)
                 // In diesen Fällen setzen wir den ActivationDT auf "NOW", ansonsten übernehmen wir was vorher drinnen stand (null oder der erstmals gesetzte DT)
-                activatedAtDt = if (!existingUser.activated && activationStatusWillBeUpdated) Clock.System.now() else existingUser.activatedAtDt,
+                activatedAtDt = if (!existingUser.isActivated && activationStatusWillBeUpdated) Clock.System.now() else existingUser.activatedAtDt,
                 lastModifiedDt = Clock.System.now()
             )
             userRepository.save(updatedUser)
@@ -129,15 +129,9 @@ class UserService(
     /**
      * Reads data from an existing account.
      */
-    fun read(dto: UserReadDTO): UserProfileDTO {
+    fun read(dto: UserReadDTO): UserEntity {
         val readUser = userRepository.findById(dto.id) ?: throw UserNotFoundException()
         LOGGER.info("[read] User Profile returned for: ${readUser.id}")
-        return UserProfileDTO(
-            name = readUser.name,
-            email = readUser.email,
-            createdAtDt = readUser.createdAtDt,
-            isActivated = readUser.activated,
-            activatedAtDt = readUser.activatedAtDt,
-        )
+        return readUser
     }
 }

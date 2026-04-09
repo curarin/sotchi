@@ -13,7 +13,7 @@ data class UserEntity(
     val createdAtDt: Instant,
     val lastModifiedDt: Instant,
     val role: UserRole = UserRole.STANDARD,
-    val activated: Boolean = false,
+    val isActivated: Boolean = false,
     val activatedAtDt: Instant? = null,
     val activationToken: String? = null,
     val activationTokenValidUntil: Instant? = null

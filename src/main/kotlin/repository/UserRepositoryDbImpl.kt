@@ -38,7 +38,7 @@ class UserRepositoryDbImpl : UserRepository {
             createdAtDt = row[UserTable.createdAtDt],
             role = row[UserRoleTable.role],
             lastModifiedDt = row[UserTable.lastModifiedDt],
-            activated = row[UserActivationTable.isActivated],
+            isActivated = row[UserActivationTable.isActivated],
             activatedAtDt = row[UserActivationTable.activatedAtDt]
         )
     }
@@ -65,7 +65,7 @@ class UserRepositoryDbImpl : UserRepository {
             createdAtDt = row[UserTable.createdAtDt],
             role = row[UserRoleTable.role],
             lastModifiedDt = row[UserTable.lastModifiedDt],
-            activated = row[UserActivationTable.isActivated],
+            isActivated = row[UserActivationTable.isActivated],
             activatedAtDt = row[UserActivationTable.activatedAtDt]
         )
     }
@@ -133,7 +133,7 @@ class UserRepositoryDbImpl : UserRepository {
                 }
 
                 UserActivationTable.update({ UserActivationTable.userId eq user.id }) {
-                    it[isActivated] = user.activated
+                    it[isActivated] = user.isActivated
                     it[activatedAtDt] = user.activatedAtDt
                 }
 
@@ -155,7 +155,7 @@ class UserRepositoryDbImpl : UserRepository {
             createdAtDt = saveRow[UserTable.createdAtDt],
             role = saveRow[UserRoleTable.role],
             lastModifiedDt = saveRow[UserTable.lastModifiedDt],
-            activated = saveRow[UserActivationTable.isActivated],
+            isActivated = saveRow[UserActivationTable.isActivated],
             activatedAtDt = saveRow[UserActivationTable.activatedAtDt]
         )
     }
