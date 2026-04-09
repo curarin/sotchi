@@ -4,8 +4,10 @@ import app.sotchi.domain.exception.EmailAlreadyInUseException
 import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.generic.UserRole
-import app.sotchi.domain.user.UserEntity
-import app.sotchi.dto.user.*
+import app.sotchi.dto.user.UserCreateDTO
+import app.sotchi.dto.user.UserLoginDTO
+import app.sotchi.dto.user.UserReadDTO
+import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.persistence.UserActivationTable
 import app.sotchi.persistence.UserRoleTable
 import app.sotchi.persistence.UserTable

@@ -2,11 +2,7 @@ package app.sotchi.controller.routes
 
 import app.sotchi.controller.resources.UserAuth
 import app.sotchi.domain.generic.UserRole
-import app.sotchi.dto.user.UserCreateDTO
-import app.sotchi.dto.user.UserLoginDTO
-import app.sotchi.dto.user.UserProfileDTO
-import app.sotchi.dto.user.UserReadDTO
-import app.sotchi.dto.user.UserUpdateDTO
+import app.sotchi.dto.user.*
 import app.sotchi.service.UserService
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -66,10 +62,10 @@ fun Route.userRoutesV1(userService: UserService) {
                 application.environment.log.info("JWT token received: userId $userId, userRole $userRole, expires at $expiresAt ms")
                 val existingUser = userService.read(UserReadDTO(userId))
                 val userProfile = UserProfileDTO(
-                        name = existingUser.name,
-                        email = existingUser.email,
-                        createdAtDt = existingUser.createdAtDt,
-                        isActivated = existingUser.isActivated
+                    name = existingUser.name,
+                    email = existingUser.email,
+                    createdAtDt = existingUser.createdAtDt,
+                    isActivated = existingUser.isActivated
                 )
                 call.respond(HttpStatusCode.OK, userProfile)
             }
