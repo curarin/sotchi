@@ -11,6 +11,5 @@ data class UserProfileDTO(
     val name: String,
     val email: String,
     val createdAtDt: Instant,
-    val isActivated: Boolean,
-    val activatedAtDt: Instant? = null
+    val isActivated: Boolean
 )
