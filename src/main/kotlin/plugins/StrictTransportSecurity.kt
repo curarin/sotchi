@@ -8,7 +8,8 @@ import io.ktor.server.plugins.hsts.*
  */
 fun Application.configureStrictTransportSecurity() {
     install(HSTS) {
-        maxAgeInSeconds = 31536000 // 1 Jahr > solange soll der Browser sich merken, dass wir nur über HTTPS aufgerufen werden wollen
+        maxAgeInSeconds =
+            31536000 // 1 Jahr > solange soll der Browser sich merken, dass wir nur über HTTPS aufgerufen werden wollen
         includeSubDomains = false
     }
 }
