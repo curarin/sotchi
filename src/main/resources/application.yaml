@@ -9,3 +9,9 @@ ktor:
     issuer: "generated-by-sotchi-api"
     audience: "useable-by-sotchi-api-consumers"
     realm: "sotchi-api"
+  database:
+    url: "jdbc:h2:./dev"
+    user: "root"
+    password: "root"
+    driver: "org.h2.Driver"
+
