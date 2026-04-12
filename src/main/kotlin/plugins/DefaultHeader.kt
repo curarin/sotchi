@@ -1,6 +1,6 @@
 package app.sotchi.plugins
 
-import io.ktor.http.HttpHeaders
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.defaultheaders.*
 
