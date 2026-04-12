@@ -8,6 +8,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureCors()
     configureStrictTransportSecurity()
     configureDefaultHeader()
     configureRatelimit()
