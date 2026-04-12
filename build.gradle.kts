@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.resources)
+    implementation(libs.ui.desktop)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test)
     implementation(libs.mkammerer.argon2)
@@ -42,6 +43,7 @@ dependencies {
     implementation(libs.ktor.server.default.headers)
     implementation(libs.ktor.server.hsts)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.client.content.negotiation)
 
 }
 
