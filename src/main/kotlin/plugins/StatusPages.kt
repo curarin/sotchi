@@ -44,15 +44,15 @@ fun Application.configureStatusPages() {
         exception<Throwable> { call, cause ->
             when (cause) {
                 is EmailAlreadyInUseException -> {
-                    call.respondText(text = "409: $cause", status = HttpStatusCode.Conflict)
+                    call.respondText(text = "400: $cause", status = HttpStatusCode.BadRequest)
                 }
 
                 is UserNotAuthenticated -> {
-                    call.respondText(text = "403: User not authenticated", status = HttpStatusCode.Forbidden)
+                    call.respondText(text = "401: User not authorized", status = HttpStatusCode.Unauthorized)
                 }
 
                 is UserNotFoundException -> {
-                    call.respondText(text = "404: User not found", status = HttpStatusCode.NotFound)
+                    call.respondText(text = "401: User not authorized", status = HttpStatusCode.Unauthorized)
                 }
 
                 is UserNameInvalid -> {
