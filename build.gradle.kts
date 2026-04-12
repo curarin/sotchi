@@ -34,7 +34,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.resources)
     testImplementation(libs.ktor.server.test.host)
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
     implementation(libs.mkammerer.argon2)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.rate.limit)
