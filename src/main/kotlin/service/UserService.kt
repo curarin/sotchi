@@ -56,7 +56,10 @@ class UserService(
 
         userRepository.save(newUser)
 
-        eventPublisher.publish(UserCreatedEvent(userId = newUser.id))
+
+        if (userRepository.findByEmail(dto.email) != null) {
+            eventPublisher.publish(UserCreatedEvent(userId = userRepository.findByEmail(dto.email)!!.id))
+        }
 
         return true
     }

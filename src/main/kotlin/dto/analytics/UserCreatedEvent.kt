@@ -13,4 +13,4 @@ data class UserCreatedEvent(
     val eventName: String = "userCreated",
     val eventVersion: Int = 1,
     val userId: Int
-): DomainEvent
+) : DomainEvent
