@@ -5,7 +5,7 @@ import app.sotchi.controller.routes.healthRouteV1
 import app.sotchi.controller.routes.sourdoughRoutesV1
 import app.sotchi.controller.routes.userRoutesV1
 import app.sotchi.messaging.DefaultEventPublisher
-import app.sotchi.messaging.MessagQueueSubscriber
+import app.sotchi.messaging.MessageQueueSubscriber
 import app.sotchi.repository.SourdoughRepositoryImpl
 import app.sotchi.repository.UserRepositoryDbImpl
 import app.sotchi.service.SourdoughService
@@ -20,7 +20,7 @@ import io.ktor.server.routing.openapi.*
 fun Application.configureRouting() {
     routing {
         val eventPublisher = DefaultEventPublisher()
-        eventPublisher.subscribe(MessagQueueSubscriber())
+        eventPublisher.subscribe(MessageQueueSubscriber())
 
         val sourdoughRepository = SourdoughRepositoryImpl()
         val userRepository = UserRepositoryDbImpl()
