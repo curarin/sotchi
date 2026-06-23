@@ -5,7 +5,12 @@ import app.sotchi.domain.exception.UserNotAuthenticated
 import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.generic.UserRole
 import app.sotchi.domain.user.UserEntity
+import app.sotchi.dto.analytics.UserCreatedEvent
+import app.sotchi.dto.analytics.UserDeletedEvent
+import app.sotchi.dto.analytics.UserLoggedInEvent
+import app.sotchi.dto.analytics.UserUpdatedEvent
 import app.sotchi.dto.user.*
+import app.sotchi.messaging.EventPublisher
 import app.sotchi.repository.UserRepository
 import app.sotchi.security.Encryption
 import io.ktor.util.logging.*
@@ -18,7 +23,7 @@ import kotlin.uuid.Uuid
 internal val LOGGER = KtorSimpleLogger("com.example.RequestTracePlugin")
 
 class UserService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository, private val eventPublisher: EventPublisher
 ) {
     /**
      * User creates a new account.
@@ -51,6 +56,8 @@ class UserService(
 
         userRepository.save(newUser)
 
+        eventPublisher.publish(UserCreatedEvent(userId = newUser.id))
+
         return true
     }
 
@@ -81,6 +88,7 @@ class UserService(
                 lastModifiedDt = Clock.System.now()
             )
             userRepository.save(updatedUser)
+            eventPublisher.publish(UserUpdatedEvent(userId = updatedUser.id))
         } else {
             // Wir prüfen ob aus dem Update DTO ein Activation Boolean da ist - wenn nicht, wird der aus dem bestehenden User genommen
             val activationStatusWillBeUpdated = dto.isActivated ?: existingUser.isActivated
@@ -96,6 +104,7 @@ class UserService(
                 lastModifiedDt = Clock.System.now()
             )
             userRepository.save(updatedUser)
+            eventPublisher.publish(UserUpdatedEvent(userId = updatedUser.id))
         }
         return true
     }
@@ -105,6 +114,7 @@ class UserService(
      */
     fun delete(userId: Int): Boolean {
         val existingUser = userRepository.findById(userId) ?: throw UserNotFoundException()
+        eventPublisher.publish(UserDeletedEvent(userId = existingUser.id))
         return userRepository.deleteById(existingUser.id)
     }
 
@@ -117,6 +127,11 @@ class UserService(
         val userIsAuthenticated = Encryption().validate(loggedInUser.password, dto.password.toCharArray())
         if (userIsAuthenticated) {
             LOGGER.info("[service login] User is authenticated: ${loggedInUser.id}")
+            eventPublisher.publish(
+                UserLoggedInEvent(
+                    userId = loggedInUser.id,
+                )
+            )
             return UserAuthenticationDTO(
                 id = loggedInUser.id, role = loggedInUser.role
             )
