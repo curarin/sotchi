@@ -8,6 +8,8 @@ import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.dto.user.UserLoginDTO
 import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
+import app.sotchi.messaging.DefaultEventPublisher
+import app.sotchi.messaging.EventPublisher
 import app.sotchi.persistence.UserActivationTable
 import app.sotchi.persistence.UserRoleTable
 import app.sotchi.persistence.UserTable
@@ -28,6 +30,7 @@ import kotlin.test.*
  */
 class UserServiceTest {
     private lateinit var userRepository: UserRepository
+    private lateinit var eventPublisher: EventPublisher
     private lateinit var userService: UserService
 
     /**
@@ -50,7 +53,8 @@ class UserServiceTest {
             SchemaUtils.create(UserTable, UserRoleTable, UserActivationTable)
         }
         userRepository = UserRepositoryDbImpl()//UserRepositoryInMemoryImpl()
-        userService = UserService(userRepository)
+        eventPublisher = DefaultEventPublisher()
+        userService = UserService(userRepository, eventPublisher)
         userService.create(
             UserCreateDTO(
                 name = "test12345", email = "email@test.com", password = "test12345"
