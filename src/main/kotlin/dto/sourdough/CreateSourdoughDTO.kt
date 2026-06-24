@@ -1,12 +1,15 @@
 package app.sotchi.dto.sourdough
 
 import app.sotchi.domain.generic.FlourTypeEntity
-import kotlinx.datetime.Instant
+import app.sotchi.domain.generic.LiquidTypeEntity
 import kotlinx.serialization.Serializable
 
+/**
+ * Use Case: Incoming request when a user creates a fresh new sourdough
+ */
 @Serializable
 data class CreateSourdoughDTO(
     val name: String,
-    val lastTimeFedDt: Instant,
-    val flourType: FlourTypeEntity
+    val flourType: FlourTypeEntity,
+    val liquidType: LiquidTypeEntity,
 )
