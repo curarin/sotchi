@@ -8,7 +8,7 @@ import kotlin.time.Instant
  * for whenever a user is successfully logged-in
  */
 data class UserLoggedInEvent(
-    val occuredAtDt: Instant = Clock.System.now(),
+    val occurredAtDt: Instant = Clock.System.now(),
     val env: String = "dev",
     val eventName: String = "userLoggedIn",
     val eventVersion: Int = 1,
