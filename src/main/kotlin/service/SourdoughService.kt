@@ -10,7 +10,6 @@ import app.sotchi.dto.sourdough.*
 import app.sotchi.messaging.EventPublisher
 import app.sotchi.repository.SourdoughRepository
 import app.sotchi.repository.UserRepository
-import app.sotchi.state.UndefinedState
 import kotlin.time.Clock
 
 class SourdoughService(
