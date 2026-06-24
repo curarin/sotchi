@@ -6,7 +6,7 @@ import kotlin.time.Instant
 /**
  * Use Case: Incoming request when a user feeds an existing sourdough
  */
-data class FeedSourdoughDTO(
+data class SourdoughFeedDTO(
     val id: Int,
     val fedAtDt: Instant = Clock.System.now(),
 )

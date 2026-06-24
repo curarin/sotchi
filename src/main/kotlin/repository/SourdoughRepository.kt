@@ -4,8 +4,9 @@ import app.sotchi.domain.sourdough.SourdoughEntity
 
 
 interface SourdoughRepository {
-    fun findAll(): List<SourdoughEntity>?
-    fun findById(id: Int): SourdoughEntity
+    fun findAllPerUser(userId: Int): List<SourdoughEntity>?
+    fun findById(sourdoughId: Int): SourdoughEntity?
     fun save(sourdoughEntity: SourdoughEntity): SourdoughEntity
-    fun delete(sourdoughEntity: SourdoughEntity): SourdoughEntity
+    fun delete(sourdoughId: Int): Boolean
+    fun feed(sourdoughId: Int): SourdoughEntity
 }

@@ -1,8 +1,8 @@
 package app.sotchi.controller.routes
 
 import app.sotchi.controller.resources.Sourdough
-import app.sotchi.dto.sourdough.CreateSourdoughDTO
-import app.sotchi.dto.sourdough.DeleteSourdoughDTO
+import app.sotchi.dto.sourdough.SourdoughCreateDTO
+import app.sotchi.dto.sourdough.SourdoughDeleteDTO
 import app.sotchi.service.SourdoughService
 import io.ktor.http.*
 import io.ktor.server.plugins.ratelimit.*
@@ -18,7 +18,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
          * User creates a new sourdough.
          */
         post<Sourdough> {
-            val dto = call.receive<CreateSourdoughDTO>()
+            val dto = call.receive<SourdoughCreateDTO>()
 
             // ToDo: Auth / JWT Implementierung > userID wird dann von dort geholt
             val userId =
@@ -76,7 +76,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
          * User deletes one specific sourdough.
          */
         delete<Sourdough.Id> { sourdough ->
-            val dto = DeleteSourdoughDTO(
+            val dto = SourdoughDeleteDTO(
                 id = sourdough.id
             )
             val deletedSourdough = sourdoughService.deleteSourdough(dto)
