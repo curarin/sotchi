@@ -7,9 +7,7 @@ import app.sotchi.dto.sourdough.SourdoughUpdateDTO
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.messaging.DefaultEventPublisher
 import app.sotchi.messaging.EventPublisher
-import app.sotchi.persistence.UserActivationTable
-import app.sotchi.persistence.UserRoleTable
-import app.sotchi.persistence.UserTable
+import app.sotchi.persistence.*
 import app.sotchi.repository.SourdoughRepository
 import app.sotchi.repository.SourdoughRepositoryImpl
 import app.sotchi.repository.UserRepository
@@ -19,11 +17,7 @@ import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.*
 import kotlin.time.Clock
 
 class SourdoughRepositoryImplTest {
@@ -44,9 +38,15 @@ class SourdoughRepositoryImplTest {
             })
 
         transaction {
-            SchemaUtils.drop(UserRoleTable, UserActivationTable, UserTable)
+            SchemaUtils.drop(
+                UserRoleTable, UserActivationTable, UserTable, SourdoughTable, FlourTable, LiquidTable,
+                SourdoughFeedLogTable
+            )
 
-            SchemaUtils.create(UserTable, UserRoleTable, UserActivationTable)
+            SchemaUtils.create(
+                UserTable, UserRoleTable, UserActivationTable, SourdoughTable, FlourTable, LiquidTable,
+                SourdoughFeedLogTable
+            )
         }
         userRepository = UserRepositoryDbImpl()//UserRepositoryInMemoryImpl()
         sourdoughRepository = SourdoughRepositoryImpl()
@@ -62,7 +62,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `findById() finds the sourdough`() {
         val newSourdough = SourdoughEntity(
-            user = userRepository.findById(1)!!,
+            userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
@@ -76,7 +76,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `findAllPerUser() returns all sourdoughs for single user`() {
         val newSourdough = SourdoughEntity(
-            user = userRepository.findById(1)!!,
+            userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
@@ -86,7 +86,7 @@ class SourdoughRepositoryImplTest {
         sourdoughRepository.save(newSourdough)
 
         val newSourdoughTwo = SourdoughEntity(
-            user = userRepository.findById(1)!!,
+            userId = 1,
             flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
             liquidType = LiquidTypeEntity.ORANGE_JUICE,
             sourdoughName = "Testteig",
@@ -101,7 +101,8 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `save() correctly inserts a new sourdough`() {
         val newSourdough = SourdoughEntity(
-            user = userRepository.findById(1)!!,
+            id = 0,
+            userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
@@ -116,7 +117,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `save() correctly updates an existing sourdough`() {
         val newSourdough = SourdoughEntity(
-            user = userRepository.findById(1)!!,
+            userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
@@ -131,7 +132,7 @@ class SourdoughRepositoryImplTest {
         )
         val updatedSourdough = existingSourdough.copy(
             id = existingSourdough.id,
-            user = userRepository.findById(1)!!,
+            userId = 1,
             flourType = dto.flourType ?: existingSourdough.flourType,
             liquidType = dto.liquidType ?: existingSourdough.liquidType,
             sourdoughName = dto.name ?: existingSourdough.sourdoughName,
@@ -149,7 +150,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `delete() deletes a sourdough`() {
         val newSourdough = SourdoughEntity(
-            user = userRepository.findById(1)!!,
+            userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
