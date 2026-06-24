@@ -2,6 +2,7 @@ package app.sotchi.domain.sourdough
 
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
+import app.sotchi.domain.generic.SourdoughHealthState
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
@@ -14,5 +15,6 @@ data class SourdoughEntity(
     val sourdoughName: String,
     val createdAtDt: Instant,
     val lastModifiedAtDt: Instant,
+    val healthState: SourdoughHealthState,
     val lastFedAtDt: Instant? = null
 )

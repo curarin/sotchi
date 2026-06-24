@@ -10,6 +10,7 @@ import app.sotchi.dto.sourdough.*
 import app.sotchi.messaging.EventPublisher
 import app.sotchi.repository.SourdoughRepository
 import app.sotchi.repository.UserRepository
+import app.sotchi.state.UndefinedState
 import kotlin.time.Clock
 
 class SourdoughService(
@@ -30,6 +31,7 @@ class SourdoughService(
                 liquidType = dto.liquidType,
                 sourdoughName = dto.name,
                 createdAtDt = Clock.System.now(),
+                healthState = dto.healthState,
                 lastModifiedAtDt = Clock.System.now(),
             )
             sourdoughRepository.save(newSourdoughEntity)
