@@ -16,7 +16,6 @@ class SourdoughService(
      * Business logic for: User creates a new sourdough.
      */
     fun createSourdough(dto: CreateSourdoughDTO, userId: Int): SourdoughEntity {
-        val currentDateTime = Clock.System.now()
         val foundUser = userRepository.findById(userId)
         if (foundUser != null) {
             val newSourdoughEntity = SourdoughEntity(
@@ -24,8 +23,8 @@ class SourdoughService(
                 flourType = dto.flourType,
                 liquidType = dto.liquidType,
                 sourdoughName = dto.name,
-                createdAtDt = currentDateTime,
-                lastModifiedAtDt = currentDateTime,
+                createdAtDt = Clock.System.now(),
+                lastModifiedAtDt = Clock.System.now(),
             )
             return sourdoughRepository.save(newSourdoughEntity)
         } else {
@@ -39,6 +38,6 @@ class SourdoughService(
     fun deleteSourdough(dto: DeleteSourdoughDTO): SourdoughEntity {
         val currentDateTime = Clock.System.now()
         val currentSourdough = sourdoughRepository.findById(dto.id)
-        return sourdoughRepository.delete(currentSourdough)
+        return sourdoughRepository.delete(currentSourdough!!)
     }
 }
