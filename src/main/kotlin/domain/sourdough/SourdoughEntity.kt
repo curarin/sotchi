@@ -9,7 +9,7 @@ import kotlin.time.Instant
 @Serializable
 data class SourdoughEntity(
     val id: Int? = null,
-    val user: UserEntity,
+    val userId: Int,
     val flourType: FlourTypeEntity,
     val liquidType: LiquidTypeEntity,
     val sourdoughName: String,
