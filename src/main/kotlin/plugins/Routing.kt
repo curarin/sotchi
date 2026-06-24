@@ -27,6 +27,7 @@ fun Application.configureRouting() {
         val sourdoughService = SourdoughService(
             sourdoughRepository = sourdoughRepository,
             userRepository = userRepository,
+            eventPublisher = eventPublisher
         )
 
         val userService = UserService(
