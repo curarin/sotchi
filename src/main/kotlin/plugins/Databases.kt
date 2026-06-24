@@ -27,7 +27,8 @@ fun Application.configureDatabases() {
             SourdoughTable,
             FlourTable,
             LiquidTable,
-            SourdoughFeedLogTable
+            SourdoughFeedLogTable,
+            SourdoughHealthStateTable
         )
     }
 }
