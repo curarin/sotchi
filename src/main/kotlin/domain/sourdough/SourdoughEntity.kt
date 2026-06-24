@@ -2,7 +2,6 @@ package app.sotchi.domain.sourdough
 
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
-import app.sotchi.domain.user.UserEntity
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 

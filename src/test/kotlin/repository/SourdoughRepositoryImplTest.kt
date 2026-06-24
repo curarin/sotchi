@@ -20,6 +20,9 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.test.*
 import kotlin.time.Clock
 
+/**
+ * Tests the functionality of sourdough repository
+ */
 class SourdoughRepositoryImplTest {
     private lateinit var sourdoughRepository: SourdoughRepository
     private lateinit var userService: UserService
@@ -39,12 +42,22 @@ class SourdoughRepositoryImplTest {
 
         transaction {
             SchemaUtils.drop(
-                UserRoleTable, UserActivationTable, UserTable, SourdoughTable, FlourTable, LiquidTable,
+                UserRoleTable,
+                UserActivationTable,
+                UserTable,
+                SourdoughTable,
+                FlourTable,
+                LiquidTable,
                 SourdoughFeedLogTable
             )
 
             SchemaUtils.create(
-                UserTable, UserRoleTable, UserActivationTable, SourdoughTable, FlourTable, LiquidTable,
+                UserTable,
+                UserRoleTable,
+                UserActivationTable,
+                SourdoughTable,
+                FlourTable,
+                LiquidTable,
                 SourdoughFeedLogTable
             )
         }
@@ -62,6 +75,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `findById() finds the sourdough`() {
         val newSourdough = SourdoughEntity(
+            id = 0,
             userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
@@ -76,6 +90,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `findAllPerUser() returns all sourdoughs for single user`() {
         val newSourdough = SourdoughEntity(
+            id = 0,
             userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
@@ -86,6 +101,7 @@ class SourdoughRepositoryImplTest {
         sourdoughRepository.save(newSourdough)
 
         val newSourdoughTwo = SourdoughEntity(
+            id = 0,
             userId = 1,
             flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
             liquidType = LiquidTypeEntity.ORANGE_JUICE,
@@ -117,6 +133,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `save() correctly updates an existing sourdough`() {
         val newSourdough = SourdoughEntity(
+            id = 0,
             userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
@@ -127,8 +144,7 @@ class SourdoughRepositoryImplTest {
         sourdoughRepository.save(newSourdough)
         val existingSourdough = sourdoughRepository.findById(1)
         val dto = SourdoughUpdateDTO(
-            id = existingSourdough!!.id!!,
-            flourType = FlourTypeEntity.COCONUT
+            id = existingSourdough!!.id!!, flourType = FlourTypeEntity.COCONUT
         )
         val updatedSourdough = existingSourdough.copy(
             id = existingSourdough.id,
@@ -150,6 +166,7 @@ class SourdoughRepositoryImplTest {
     @Test
     fun `delete() deletes a sourdough`() {
         val newSourdough = SourdoughEntity(
+            id = 0,
             userId = 1,
             flourType = FlourTypeEntity.RYE,
             liquidType = LiquidTypeEntity.WATER,
@@ -160,7 +177,25 @@ class SourdoughRepositoryImplTest {
         sourdoughRepository.save(newSourdough)
         val existingSourdough = sourdoughRepository.findById(1)
         assertNotNull(existingSourdough)
-        sourdoughRepository.delete(existingSourdough)
+        assertTrue(sourdoughRepository.delete(1))
         assertNull(sourdoughRepository.findById(1))
+    }
+
+    @Test
+    fun `feed() sets a correct timestamp in feedLog table`() {
+        val newSourdough = SourdoughEntity(
+            id = 0,
+            userId = 1,
+            flourType = FlourTypeEntity.RYE,
+            liquidType = LiquidTypeEntity.WATER,
+            sourdoughName = "Testteig",
+            createdAtDt = Clock.System.now(),
+            lastModifiedAtDt = Clock.System.now()
+        )
+        sourdoughRepository.save(newSourdough)
+        val existingSourdough = sourdoughRepository.findById(1)
+        sourdoughRepository.feed(existingSourdough!!.id!!)
+        val updatedSourdoughAfterFeeding = sourdoughRepository.findById(1)
+        assertNotNull(updatedSourdoughAfterFeeding!!.lastModifiedAtDt)
     }
 }

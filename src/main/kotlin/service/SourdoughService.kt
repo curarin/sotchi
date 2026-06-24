@@ -19,6 +19,7 @@ class SourdoughService(
         val foundUser = userRepository.findById(userId)
         if (foundUser != null) {
             val newSourdoughEntity = SourdoughEntity(
+                id = dto.id,
                 userId = foundUser.id,
                 flourType = dto.flourType,
                 liquidType = dto.liquidType,
@@ -35,9 +36,8 @@ class SourdoughService(
     /**
      * Business logic for: User deletes an existing sourdough.
      */
-    fun deleteSourdough(dto: SourdoughDeleteDTO): SourdoughEntity {
-        val currentDateTime = Clock.System.now()
+    fun deleteSourdough(dto: SourdoughDeleteDTO): Boolean {
         val currentSourdough = sourdoughRepository.findById(dto.id)
-        return sourdoughRepository.delete(currentSourdough!!)
+        return sourdoughRepository.delete(currentSourdough!!.id!!)
     }
 }

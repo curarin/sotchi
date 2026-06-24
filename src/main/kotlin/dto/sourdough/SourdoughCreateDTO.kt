@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class SourdoughCreateDTO(
+    val id: Int = 0,
     val name: String,
     val flourType: FlourTypeEntity,
     val liquidType: LiquidTypeEntity,
