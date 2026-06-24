@@ -8,7 +8,7 @@ import kotlin.time.Instant
  * for whenever a user was successfully deleted
  */
 data class UserDeletedEvent(
-    val occuredAtDt: Instant = Clock.System.now(),
+    val occurredAtDt: Instant = Clock.System.now(),
     val env: String = "dev",
     val eventName: String = "userDeleted",
     val eventVersion: Int = 1,

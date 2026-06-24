@@ -8,7 +8,7 @@ import kotlin.time.Instant
  * for whenever a user is successfully updated
  */
 data class UserUpdatedEvent(
-    val occuredAtDt: Instant = Clock.System.now(),
+    val occurredAtDt: Instant = Clock.System.now(),
     val env: String = "dev",
     val eventName: String = "userUpdated",
     val eventVersion: Int = 1,
