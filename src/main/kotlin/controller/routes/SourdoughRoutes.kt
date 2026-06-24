@@ -23,7 +23,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
             // ToDo: Auth / JWT Implementierung > userID wird dann von dort geholt
             val userId =
                 call.request.headers["user-id"]?.toIntOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
-            val createdSourdough = sourdoughService.createSourdough(dto = dto, userId = userId)
+            val createdSourdough = sourdoughService.create(dto = dto, userId = userId)
             call.respond(
                 createdSourdough,
             )
@@ -79,7 +79,10 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
             val dto = SourdoughDeleteDTO(
                 id = sourdough.id
             )
-            val deletedSourdough = sourdoughService.deleteSourdough(dto)
+
+            val userId =
+                call.request.headers["user-id"]?.toIntOrNull() ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val deletedSourdough = sourdoughService.delete(dto, userId)
             call.respond(deletedSourdough)
         }
 
