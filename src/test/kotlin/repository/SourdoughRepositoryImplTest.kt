@@ -3,7 +3,7 @@ package repository
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
 import app.sotchi.domain.sourdough.SourdoughEntity
-import app.sotchi.dto.sourdough.ModifySourdoughDTO
+import app.sotchi.dto.sourdough.SourdoughUpdateDTO
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.messaging.DefaultEventPublisher
 import app.sotchi.messaging.EventPublisher
@@ -125,7 +125,7 @@ class SourdoughRepositoryImplTest {
         )
         sourdoughRepository.save(newSourdough)
         val existingSourdough = sourdoughRepository.findById(1)
-        val dto = ModifySourdoughDTO(
+        val dto = SourdoughUpdateDTO(
             id = existingSourdough!!.id!!,
             flourType = FlourTypeEntity.COCONUT
         )

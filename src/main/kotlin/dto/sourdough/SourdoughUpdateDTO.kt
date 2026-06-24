@@ -6,7 +6,7 @@ import app.sotchi.domain.generic.LiquidTypeEntity
 /**
  * Use Case: Incoming request when a user modifies an existing sourdough
  */
-data class ModifySourdoughDTO(
+data class SourdoughUpdateDTO(
     val id: Int,
     val name: String? = null,
     val flourType: FlourTypeEntity? = null,

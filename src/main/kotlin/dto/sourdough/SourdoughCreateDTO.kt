@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * Use Case: Incoming request when a user creates a fresh new sourdough
  */
 @Serializable
-data class CreateSourdoughDTO(
+data class SourdoughCreateDTO(
     val name: String,
     val flourType: FlourTypeEntity,
     val liquidType: LiquidTypeEntity,
