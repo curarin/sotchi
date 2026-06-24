@@ -3,8 +3,8 @@ package app.sotchi.domain.sourdough
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
 import app.sotchi.domain.user.UserEntity
-import kotlin.time.Instant
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class SourdoughEntity(
