@@ -1,8 +1,6 @@
 package app.sotchi.plugins
 
-import app.sotchi.persistence.UserActivationTable
-import app.sotchi.persistence.UserRoleTable
-import app.sotchi.persistence.UserTable
+import app.sotchi.persistence.*
 import io.ktor.server.application.*
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -18,15 +16,18 @@ fun Application.configureDatabases() {
     val driver = config.property("ktor.database.driver").getString()
 
     val database = Database.connect(
-        url = url,
-        user = user,
-        driver = driver,
-        password = password,
-        databaseConfig = DatabaseConfig {
+        url = url, user = user, driver = driver, password = password, databaseConfig = DatabaseConfig {
             defaultMaxAttempts = 3
-        }
-    )
+        })
     transaction(database) {
-        SchemaUtils.create(UserTable, UserRoleTable, UserActivationTable)
+        SchemaUtils.create(
+            UserTable,
+            UserRoleTable,
+            UserActivationTable,
+            SourdoughTable,
+            FlourTable,
+            LiquidTable,
+            SourdoughFeedLogTable
+        )
     }
 }
