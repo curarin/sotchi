@@ -19,7 +19,7 @@ class SourdoughService(
         val foundUser = userRepository.findById(userId)
         if (foundUser != null) {
             val newSourdoughEntity = SourdoughEntity(
-                user = foundUser,
+                userId = foundUser.id,
                 flourType = dto.flourType,
                 liquidType = dto.liquidType,
                 sourdoughName = dto.name,
