@@ -2,6 +2,7 @@ package repository
 
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
+import app.sotchi.domain.generic.SourdoughHealthState
 import app.sotchi.domain.sourdough.SourdoughEntity
 import app.sotchi.dto.sourdough.SourdoughUpdateDTO
 import app.sotchi.dto.user.UserCreateDTO
@@ -48,7 +49,8 @@ class SourdoughRepositoryImplTest {
                 SourdoughTable,
                 FlourTable,
                 LiquidTable,
-                SourdoughFeedLogTable
+                SourdoughFeedLogTable,
+                SourdoughHealthStateTable
             )
 
             SchemaUtils.create(
@@ -58,7 +60,8 @@ class SourdoughRepositoryImplTest {
                 SourdoughTable,
                 FlourTable,
                 LiquidTable,
-                SourdoughFeedLogTable
+                SourdoughFeedLogTable,
+                SourdoughHealthStateTable
             )
         }
         userRepository = UserRepositoryDbImpl()//UserRepositoryInMemoryImpl()
@@ -81,6 +84,7 @@ class SourdoughRepositoryImplTest {
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
             createdAtDt = Clock.System.now(),
+            healthState = SourdoughHealthState.JUST_FED,
             lastModifiedAtDt = Clock.System.now()
         )
         sourdoughRepository.save(newSourdough)
@@ -96,6 +100,7 @@ class SourdoughRepositoryImplTest {
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
             createdAtDt = Clock.System.now(),
+            healthState = SourdoughHealthState.JUST_FED,
             lastModifiedAtDt = Clock.System.now()
         )
         sourdoughRepository.save(newSourdough)
@@ -107,6 +112,7 @@ class SourdoughRepositoryImplTest {
             liquidType = LiquidTypeEntity.ORANGE_JUICE,
             sourdoughName = "Testteig",
             createdAtDt = Clock.System.now(),
+            healthState = SourdoughHealthState.JUST_FED,
             lastModifiedAtDt = Clock.System.now()
         )
         sourdoughRepository.save(newSourdoughTwo)
@@ -123,11 +129,13 @@ class SourdoughRepositoryImplTest {
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
             createdAtDt = Clock.System.now(),
+            healthState = SourdoughHealthState.JUST_FED,
             lastModifiedAtDt = Clock.System.now()
         )
         sourdoughRepository.save(newSourdough)
         assertNotNull(sourdoughRepository.findAllPerUser(1))
         assertEquals(newSourdough.sourdoughName, sourdoughRepository.findAllPerUser(1)!![0].sourdoughName)
+        assertEquals(SourdoughHealthState.JUST_FED, sourdoughRepository.findAllPerUser(1)!![0].healthState)
     }
 
     @Test
@@ -139,6 +147,7 @@ class SourdoughRepositoryImplTest {
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
             createdAtDt = Clock.System.now(),
+            healthState = SourdoughHealthState.JUST_FED,
             lastModifiedAtDt = Clock.System.now()
         )
         sourdoughRepository.save(newSourdough)
@@ -172,6 +181,7 @@ class SourdoughRepositoryImplTest {
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
             createdAtDt = Clock.System.now(),
+            healthState = SourdoughHealthState.JUST_FED,
             lastModifiedAtDt = Clock.System.now()
         )
         sourdoughRepository.save(newSourdough)
@@ -190,6 +200,7 @@ class SourdoughRepositoryImplTest {
             liquidType = LiquidTypeEntity.WATER,
             sourdoughName = "Testteig",
             createdAtDt = Clock.System.now(),
+            healthState = SourdoughHealthState.JUST_FED,
             lastModifiedAtDt = Clock.System.now()
         )
         sourdoughRepository.save(newSourdough)

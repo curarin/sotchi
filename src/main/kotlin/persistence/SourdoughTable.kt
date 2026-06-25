@@ -11,4 +11,5 @@ object SourdoughTable : IntIdTable("sourdough") {
     val userId = optReference("user_id", UserTable.id, ReferenceOption.CASCADE)
     val lastModifiedDt = timestamp("last_modified_dt")
     val createdAtDt = timestamp("created_at_dt")
+    val healthStateId = optReference("sourdough_health_state_id", SourdoughHealthStateTable.id, ReferenceOption.CASCADE)
 }

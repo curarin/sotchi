@@ -23,8 +23,11 @@ class SourdoughRepositoryImpl : SourdoughRepository {
             LiquidTable, JoinType.INNER, additionalConstraint = { SourdoughTable.liquidId eq LiquidTable.id }).join(
             SourdoughFeedLogTable, JoinType.LEFT, additionalConstraint = {
                 SourdoughFeedLogTable.sourdoughId eq SourdoughTable.id
-            }).select(
-            SourdoughTable.columns + FlourTable.columns + LiquidTable.columns + listOf(lastFedAtDt)
+            }).join(
+            SourdoughHealthStateTable,
+            JoinType.LEFT,
+            additionalConstraint = { SourdoughTable.healthStateId eq SourdoughHealthStateTable.id }).select(
+            SourdoughTable.columns + FlourTable.columns + LiquidTable.columns + SourdoughHealthStateTable.columns + listOf(lastFedAtDt)
         ).where { SourdoughTable.userId eq userId }.groupBy(
             SourdoughTable.id,
             SourdoughTable.userId,
@@ -33,6 +36,7 @@ class SourdoughRepositoryImpl : SourdoughRepository {
             SourdoughTable.liquidId,
             SourdoughTable.createdAtDt,
             SourdoughTable.lastModifiedDt,
+            SourdoughHealthStateTable.sourdoughHealthStateName,
             FlourTable.id,
             FlourTable.flourType,
             LiquidTable.id,
@@ -46,6 +50,7 @@ class SourdoughRepositoryImpl : SourdoughRepository {
                 sourdoughName = it[SourdoughTable.name],
                 createdAtDt = it[SourdoughTable.createdAtDt],
                 lastModifiedAtDt = it[SourdoughTable.lastModifiedDt],
+                healthState = it[SourdoughHealthStateTable.sourdoughHealthStateName],
                 lastFedAtDt = it[lastFedAtDt]
             )
         }
@@ -58,8 +63,11 @@ class SourdoughRepositoryImpl : SourdoughRepository {
             LiquidTable, JoinType.INNER, additionalConstraint = { SourdoughTable.liquidId eq LiquidTable.id }).join(
             SourdoughFeedLogTable, JoinType.LEFT, additionalConstraint = {
                 SourdoughFeedLogTable.sourdoughId eq SourdoughTable.id
-            }).select(
-            SourdoughTable.columns + FlourTable.columns + LiquidTable.columns + listOf(lastFedAtDt)
+            }).join(
+            SourdoughHealthStateTable,
+            JoinType.LEFT,
+            additionalConstraint = { SourdoughTable.healthStateId eq SourdoughHealthStateTable.id }).select(
+            SourdoughTable.columns + FlourTable.columns + LiquidTable.columns + SourdoughHealthStateTable.columns + listOf(lastFedAtDt)
         ).where { SourdoughTable.id eq sourdoughId }.groupBy(
             SourdoughTable.id,
             SourdoughTable.userId,
@@ -68,6 +76,7 @@ class SourdoughRepositoryImpl : SourdoughRepository {
             SourdoughTable.liquidId,
             SourdoughTable.createdAtDt,
             SourdoughTable.lastModifiedDt,
+            SourdoughHealthStateTable.sourdoughHealthStateName,
             FlourTable.id,
             FlourTable.flourType,
             LiquidTable.id,
@@ -80,6 +89,7 @@ class SourdoughRepositoryImpl : SourdoughRepository {
                 liquidType = it[LiquidTable.liquidType],
                 sourdoughName = it[SourdoughTable.name],
                 createdAtDt = it[SourdoughTable.createdAtDt],
+                healthState = it[SourdoughHealthStateTable.sourdoughHealthStateName],
                 lastModifiedAtDt = it[SourdoughTable.lastModifiedDt],
                 lastFedAtDt = it[lastFedAtDt]
             )
@@ -103,11 +113,18 @@ class SourdoughRepositoryImpl : SourdoughRepository {
                     it[flourType] = sourdoughEntity.flourType
                 }
 
+                val healthStateInserted = SourdoughHealthStateTable.select(SourdoughHealthStateTable.id).where {
+                    SourdoughHealthStateTable.sourdoughHealthStateName eq sourdoughEntity.healthState
+                }.singleOrNull()?.get(SourdoughHealthStateTable.id) ?: SourdoughHealthStateTable.insertAndGetId {
+                    it[sourdoughHealthStateName] = sourdoughEntity.healthState
+                }
+
                 val sourdoughInserted = SourdoughTable.insert {
                     it[name] = sourdoughEntity.sourdoughName
                     it[userId] = sourdoughEntity.userId
                     it[liquidId] = liquidTypeInserted
                     it[flourId] = flourTypeInserted
+                    it[healthStateId] = healthStateInserted
                     it[createdAtDt] = sourdoughEntity.createdAtDt
                     it[lastModifiedDt] = Clock.System.now()
                 }
@@ -126,8 +143,11 @@ class SourdoughRepositoryImpl : SourdoughRepository {
                     .join(
                         SourdoughFeedLogTable,
                         JoinType.LEFT,
-                        additionalConstraint = { SourdoughFeedLogTable.sourdoughId eq SourdoughTable.id }).selectAll()
-                    .where { SourdoughTable.id eq generatedId }
+                        additionalConstraint = { SourdoughFeedLogTable.sourdoughId eq SourdoughTable.id }).join(
+                        SourdoughHealthStateTable,
+                        JoinType.LEFT,
+                        additionalConstraint = { SourdoughTable.healthStateId eq SourdoughHealthStateTable.id })
+                    .selectAll().where { SourdoughTable.id eq generatedId }
                     .orderBy(SourdoughFeedLogTable.sourdoughFedAtDt, SortOrder.DESC).limit(1).single()
             } else {
                 // If the sourdough per se already exists we just update stuff
@@ -143,11 +163,18 @@ class SourdoughRepositoryImpl : SourdoughRepository {
                         it[liquidType] = sourdoughEntity.liquidType
                     }
 
+                val healthStateInserted = SourdoughHealthStateTable.select(SourdoughHealthStateTable.id).where {
+                    SourdoughHealthStateTable.sourdoughHealthStateName eq sourdoughEntity.healthState
+                }.singleOrNull()?.get(SourdoughHealthStateTable.id) ?: SourdoughHealthStateTable.insertAndGetId {
+                    it[sourdoughHealthStateName] = sourdoughEntity.healthState
+                }
+
                 SourdoughTable.update({ SourdoughTable.id eq sourdoughEntity.id }) {
                     it[name] = sourdoughEntity.sourdoughName
                     it[userId] = sourdoughEntity.userId
                     it[flourId] = flourTypeInserted
                     it[liquidId] = liquidTypeInserted
+                    it[healthStateId] = healthStateInserted
                     it[lastModifiedDt] = Clock.System.now()
                     it[createdAtDt] = sourdoughEntity.createdAtDt
                 }
@@ -163,8 +190,11 @@ class SourdoughRepositoryImpl : SourdoughRepository {
                     .join(
                         SourdoughFeedLogTable,
                         JoinType.LEFT,
-                        additionalConstraint = { SourdoughFeedLogTable.sourdoughId eq SourdoughTable.id }).selectAll()
-                    .where { SourdoughTable.id eq sourdoughEntity.id }
+                        additionalConstraint = { SourdoughFeedLogTable.sourdoughId eq SourdoughTable.id }).join(
+                        SourdoughHealthStateTable,
+                        JoinType.LEFT,
+                        additionalConstraint = { SourdoughTable.healthStateId eq SourdoughHealthStateTable.id })
+                    .selectAll().where { SourdoughTable.id eq sourdoughEntity.id }
                     .orderBy(SourdoughFeedLogTable.sourdoughFedAtDt, SortOrder.DESC).limit(1).single()
             }
         }
@@ -175,6 +205,7 @@ class SourdoughRepositoryImpl : SourdoughRepository {
             liquidType = saveRow[LiquidTable.liquidType],
             sourdoughName = saveRow[SourdoughTable.name],
             createdAtDt = saveRow[SourdoughTable.createdAtDt],
+            healthState = saveRow[SourdoughHealthStateTable.sourdoughHealthStateName],
             lastModifiedAtDt = saveRow[SourdoughTable.lastModifiedDt],
             lastFedAtDt = saveRow[SourdoughFeedLogTable.sourdoughFedAtDt]
         )

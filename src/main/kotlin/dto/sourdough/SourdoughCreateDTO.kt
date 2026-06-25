@@ -2,6 +2,7 @@ package app.sotchi.dto.sourdough
 
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
+import app.sotchi.domain.generic.SourdoughHealthState
 import kotlinx.serialization.Serializable
 
 /**
@@ -13,4 +14,5 @@ data class SourdoughCreateDTO(
     val name: String,
     val flourType: FlourTypeEntity,
     val liquidType: LiquidTypeEntity,
+    val healthState: SourdoughHealthState
 )
