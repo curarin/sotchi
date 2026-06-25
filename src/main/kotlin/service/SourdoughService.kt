@@ -8,12 +8,10 @@ import app.sotchi.dto.analytics.SourdoughUpdatedEvent
 import app.sotchi.dto.sourdough.*
 import app.sotchi.messaging.EventPublisher
 import app.sotchi.repository.SourdoughRepository
-import app.sotchi.repository.UserRepository
 import kotlin.time.Clock
 
 class SourdoughService(
-    private val sourdoughRepository: SourdoughRepository,
-    private val eventPublisher: EventPublisher
+    private val sourdoughRepository: SourdoughRepository, private val eventPublisher: EventPublisher
 ) {
     /**
      * Business logic for: User creates a new sourdough.
@@ -55,8 +53,9 @@ class SourdoughService(
      * User feeds their sourdough
      */
     fun feed(dto: SourdoughFeedDTO, userId: Int): Boolean {
+        sourdoughRepository.feed(dto.id, dto.fedAtDt)
         eventPublisher.publish(SourdoughFedEvent(userId = userId, sourdoughId = dto.id))
-        TODO("Not yet implemented")
+        return true
     }
 
     /**

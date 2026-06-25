@@ -205,7 +205,7 @@ class SourdoughRepositoryImplTest {
         )
         sourdoughRepository.save(newSourdough)
         val existingSourdough = sourdoughRepository.findById(1)
-        sourdoughRepository.feed(existingSourdough!!.id!!)
+        sourdoughRepository.feed(existingSourdough!!.id!!, Clock.System.now())
         val updatedSourdoughAfterFeeding = sourdoughRepository.findById(1)
         assertNotNull(updatedSourdoughAfterFeeding!!.lastModifiedAtDt)
     }
