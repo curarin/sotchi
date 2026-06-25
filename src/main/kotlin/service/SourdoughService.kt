@@ -1,6 +1,5 @@
 package app.sotchi.service
 
-import app.sotchi.domain.exception.UserNotFoundException
 import app.sotchi.domain.sourdough.SourdoughEntity
 import app.sotchi.dto.analytics.SourdoughCreatedEvent
 import app.sotchi.dto.analytics.SourdoughDeletedEvent
@@ -14,31 +13,25 @@ import kotlin.time.Clock
 
 class SourdoughService(
     private val sourdoughRepository: SourdoughRepository,
-    private val userRepository: UserRepository,
     private val eventPublisher: EventPublisher
 ) {
     /**
      * Business logic for: User creates a new sourdough.
      */
     fun create(dto: SourdoughCreateDTO, userId: Int): Boolean {
-        val foundUser = userRepository.findById(userId)
-        if (foundUser != null) {
-            val newSourdoughEntity = SourdoughEntity(
-                id = dto.id,
-                userId = foundUser.id,
-                flourType = dto.flourType,
-                liquidType = dto.liquidType,
-                sourdoughName = dto.name,
-                createdAtDt = Clock.System.now(),
-                healthState = dto.healthState,
-                lastModifiedAtDt = Clock.System.now(),
-            )
-            sourdoughRepository.save(newSourdoughEntity)
-            eventPublisher.publish(SourdoughCreatedEvent(userId = userId, sourdoughId = dto.id))
-            return true
-        } else {
-            throw UserNotFoundException()
-        }
+        val newSourdoughEntity = SourdoughEntity(
+            id = dto.id,
+            userId = userId,
+            flourType = dto.flourType,
+            liquidType = dto.liquidType,
+            sourdoughName = dto.name,
+            createdAtDt = Clock.System.now(),
+            healthState = dto.healthState,
+            lastModifiedAtDt = Clock.System.now(),
+        )
+        sourdoughRepository.save(newSourdoughEntity)
+        eventPublisher.publish(SourdoughCreatedEvent(userId = userId, sourdoughId = dto.id))
+        return true
     }
 
     /**
