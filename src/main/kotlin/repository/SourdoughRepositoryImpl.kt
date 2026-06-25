@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.core.max
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * Implementation of persistence layer for sourdough entity
@@ -224,16 +225,15 @@ class SourdoughRepositoryImpl : SourdoughRepository {
         }
     }
 
-    override fun feed(sourdoughId: Int): SourdoughEntity = transaction {
-        val currentTimestamp = Clock.System.now()
+    override fun feed(sourdoughId: Int, sourdoughFedAtDt: Instant): SourdoughEntity = transaction {
 
         SourdoughFeedLogTable.insert {
             it[this.sourdoughId] = EntityID(sourdoughId, SourdoughTable)
-            it[sourdoughFedAtDt] = currentTimestamp
+            it[this.sourdoughFedAtDt] = sourdoughFedAtDt
         }
 
         SourdoughTable.update({ SourdoughTable.id eq sourdoughId }) {
-            it[lastModifiedDt] = currentTimestamp
+            it[this.lastModifiedDt] = sourdoughFedAtDt
         }
 
         findById(sourdoughId) as SourdoughEntity
