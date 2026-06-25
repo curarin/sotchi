@@ -3,9 +3,7 @@ package service
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
 import app.sotchi.domain.generic.SourdoughHealthState
-import app.sotchi.domain.sourdough.SourdoughEntity
-import app.sotchi.dto.sourdough.SourdoughCreateDTO
-import app.sotchi.dto.sourdough.SourdoughFeedDTO
+import app.sotchi.dto.sourdough.*
 import app.sotchi.dto.user.UserCreateDTO
 import app.sotchi.messaging.DefaultEventPublisher
 import app.sotchi.messaging.EventPublisher
@@ -87,17 +85,7 @@ class SourdoughServiceTest {
             liquidType = LiquidTypeEntity.ORANGE_JUICE,
             healthState = SourdoughHealthState.JUST_FED
         )
-        val newSourdoughEntity = SourdoughEntity(
-            id = dto.id,
-            userId = 1,
-            flourType = dto.flourType,
-            liquidType = dto.liquidType,
-            sourdoughName = dto.name,
-            createdAtDt = Clock.System.now(),
-            healthState = dto.healthState,
-            lastModifiedAtDt = Clock.System.now(),
-        )
-        sourdoughRepository.save(newSourdoughEntity)
+        sourdoughService.create(dto, 1)
         assertNull(sourdoughRepository.findById(1)!!.lastFedAtDt)
 
         val fedAtDt = Clock.System.now()
@@ -108,5 +96,80 @@ class SourdoughServiceTest {
         sourdoughService.feed(feedDto, userId = 1)
         assertNotNull(sourdoughRepository.findById(1)!!.lastFedAtDt)
         assertEquals(fedAtDt, sourdoughRepository.findById(1)!!.lastFedAtDt)
+    }
+
+    @Test
+    fun `update() updates sourdough correctly`() {
+        val dto = SourdoughCreateDTO(
+            name = "Test Sauerteig",
+            flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
+            liquidType = LiquidTypeEntity.ORANGE_JUICE,
+            healthState = SourdoughHealthState.JUST_FED
+        )
+        sourdoughService.create(dto, 1)
+        val updatedSourdough = SourdoughUpdateDTO(
+            id = 1,
+            flourType = FlourTypeEntity.COCONUT,
+        )
+        sourdoughService.update(updatedSourdough, userId = 1)
+
+        val sourdoughAfterUpdate = sourdoughRepository.findById(1)
+        assertEquals(FlourTypeEntity.COCONUT, sourdoughAfterUpdate!!.flourType)
+    }
+
+    @Test
+    fun `delete() deletes sourdough correctly`() {
+        val dto = SourdoughCreateDTO(
+            name = "Test Sauerteig",
+            flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
+            liquidType = LiquidTypeEntity.ORANGE_JUICE,
+            healthState = SourdoughHealthState.JUST_FED
+        )
+        sourdoughService.create(dto, userId = 1)
+        assertNotNull(sourdoughRepository.findById(1)!!)
+        val updatedSourdough = SourdoughDeleteDTO(
+            1
+        )
+        sourdoughService.delete(updatedSourdough, userId = 1)
+        assertNull(sourdoughRepository.findById(1))
+    }
+
+    @Test
+    fun `readAll() returns all the users sourdoughs`() {
+        val dto = SourdoughCreateDTO(
+            name = "Test Sauerteig",
+            flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
+            liquidType = LiquidTypeEntity.ORANGE_JUICE,
+            healthState = SourdoughHealthState.JUST_FED
+        )
+        sourdoughService.create(dto, userId = 1)
+        val dtoTwo = SourdoughCreateDTO(
+            name = "Test Sauerteig Blabber",
+            flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
+            liquidType = LiquidTypeEntity.ORANGE_JUICE,
+            healthState = SourdoughHealthState.JUST_FED
+        )
+        sourdoughService.create(dtoTwo, userId = 1)
+        val dtoThree = SourdoughCreateDTO(
+            name = "Test Sauerteig Blabbero",
+            flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
+            liquidType = LiquidTypeEntity.ORANGE_JUICE,
+            healthState = SourdoughHealthState.JUST_FED
+        )
+        sourdoughService.create(dtoThree, userId = 1)
+        assertEquals(3, sourdoughService.readAll(1).size)
+    }
+
+    @Test
+    fun `read() returns one dedicated sourdough`() {
+        val dto = SourdoughCreateDTO(
+            name = "Test Sauerteig",
+            flourType = FlourTypeEntity.WHITE_WHOLE_WHEAT,
+            liquidType = LiquidTypeEntity.ORANGE_JUICE,
+            healthState = SourdoughHealthState.JUST_FED
+        )
+        sourdoughService.create(dto, userId = 1)
+        assertNotNull(sourdoughService.read(SourdoughReadDTO(1), 1))
+        assertEquals(FlourTypeEntity.WHITE_WHOLE_WHEAT, sourdoughService.read(SourdoughReadDTO(1), 1).flourType)
     }
 }
