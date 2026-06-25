@@ -10,6 +10,11 @@ import app.sotchi.dto.user.UserReadDTO
 import app.sotchi.dto.user.UserUpdateDTO
 import app.sotchi.messaging.DefaultEventPublisher
 import app.sotchi.messaging.EventPublisher
+import app.sotchi.persistence.FlourTable
+import app.sotchi.persistence.LiquidTable
+import app.sotchi.persistence.SourdoughFeedLogTable
+import app.sotchi.persistence.SourdoughHealthStateTable
+import app.sotchi.persistence.SourdoughTable
 import app.sotchi.persistence.UserActivationTable
 import app.sotchi.persistence.UserRoleTable
 import app.sotchi.persistence.UserTable
@@ -48,9 +53,27 @@ class UserServiceTest {
             })
 
         transaction {
-            SchemaUtils.drop(UserRoleTable, UserActivationTable, UserTable)
+            SchemaUtils.drop(
+                UserRoleTable,
+                UserActivationTable,
+                UserTable,
+                SourdoughTable,
+                FlourTable,
+                LiquidTable,
+                SourdoughFeedLogTable,
+                SourdoughHealthStateTable
+            )
 
-            SchemaUtils.create(UserTable, UserRoleTable, UserActivationTable)
+            SchemaUtils.create(
+                UserTable,
+                UserRoleTable,
+                UserActivationTable,
+                SourdoughTable,
+                FlourTable,
+                LiquidTable,
+                SourdoughFeedLogTable,
+                SourdoughHealthStateTable
+            )
         }
         userRepository = UserRepositoryDbImpl()//UserRepositoryInMemoryImpl()
         eventPublisher = DefaultEventPublisher()
