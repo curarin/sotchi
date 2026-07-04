@@ -75,13 +75,13 @@ class SourdoughService(
      * User wants to see all of their sourdoughs
      */
     fun readAll(userId: Int): List<SourdoughEntity> {
-        TODO("Not yet implemented")
+        return sourdoughRepository.findAllPerUser(userId) ?: throw SourdoughNotFoundException()
     }
 
     /**
      * User wants to see one specific sourdough
      */
-    fun read(dto: SourdoughReadDTO, userId: Int): SourdoughEntity {
-        TODO("Not yet implemented")
+    fun read(dto: SourdoughReadDTO): SourdoughEntity {
+        return sourdoughRepository.findById(dto.id) ?: throw SourdoughNotFoundException()
     }
 }
