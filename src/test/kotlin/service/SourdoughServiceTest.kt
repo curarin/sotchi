@@ -1,5 +1,6 @@
 package service
 
+import app.sotchi.domain.exception.SourdoughNotFoundException
 import app.sotchi.domain.generic.FlourTypeEntity
 import app.sotchi.domain.generic.LiquidTypeEntity
 import app.sotchi.domain.generic.SourdoughHealthState
@@ -18,6 +19,7 @@ import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.Collections
 import kotlin.test.*
 import kotlin.time.Clock
 
@@ -161,6 +163,11 @@ class SourdoughServiceTest {
     }
 
     @Test
+    fun `readAll() returns empty list if no sourdoughs found`() {
+        assertEquals(Collections.emptyList(), sourdoughService.readAll(1))
+    }
+
+    @Test
     fun `read() returns one dedicated sourdough`() {
         val dto = SourdoughCreateDTO(
             name = "Test Sauerteig",
@@ -169,7 +176,12 @@ class SourdoughServiceTest {
             healthState = SourdoughHealthState.JUST_FED
         )
         sourdoughService.create(dto, userId = 1)
-        assertNotNull(sourdoughService.read(SourdoughReadDTO(1), 1))
-        assertEquals(FlourTypeEntity.WHITE_WHOLE_WHEAT, sourdoughService.read(SourdoughReadDTO(1), 1).flourType)
+        assertNotNull(sourdoughService.read(SourdoughReadDTO(1)))
+        assertEquals(FlourTypeEntity.WHITE_WHOLE_WHEAT, sourdoughService.read(SourdoughReadDTO(1)).flourType)
+    }
+
+    @Test
+    fun `read() returns exception when sourdough was not found`() {
+        assertFailsWith<SourdoughNotFoundException> { sourdoughService.read(SourdoughReadDTO(1)) }
     }
 }
