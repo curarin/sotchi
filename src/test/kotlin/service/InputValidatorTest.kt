@@ -1,5 +1,6 @@
 package service
 
+import app.sotchi.domain.exception.SourdoughNameInvalid
 import app.sotchi.domain.exception.UserEmailInvalid
 import app.sotchi.domain.exception.UserNameInvalid
 import app.sotchi.domain.exception.UserPasswordInvalid
@@ -165,6 +166,103 @@ class InputValidatorTest {
             assertFailsWith<UserNameInvalid> {
                 InputValidator.validateUsername(username)
             }
+        }
+    }
+
+    @Test
+    fun `sourdough name has unicode characters`() {
+        val invalidSourdoughNames = listOf(
+            "🔥🔥🔥",                    // emojis only
+            "   ",                      // whitespace
+            "\u0000",                   // null char
+            "test\u0007",               // bell control char
+            "name\u200Bhidden",         // zero-width space
+            "‮evil",                    // RTL override char
+            "👨‍👩‍👧‍👦",                       // complex emoji (family)
+            "a\u0301",                  // combining character (á composed)
+            "\uD83D",                   // broken surrogate
+            "name\nnewline"             // newline injection
+        )
+        for (sourdoughName in invalidSourdoughNames) {
+            assertFailsWith<SourdoughNameInvalid> {
+                InputValidator.validateSourdoughName(sourdoughName)
+            }
+        }
+    }
+
+    @Test
+    fun `sourdough name has multiple consecutive special chars`() {
+        val unallowedSourdoughNames = listOf(
+            "abcd//",
+            "abc$$",
+            "abc%%%%",
+            "abcd'''",
+            "abcde=====",
+            "ab=cd==fg",
+            "A!!bcd",
+            "abcd??????",
+            "a...b....c...."
+        )
+
+        for (sourdoughName in unallowedSourdoughNames) {
+            assertFailsWith<SourdoughNameInvalid> {
+                InputValidator.validateSourdoughName(sourdoughName)
+            }
+        }
+    }
+
+    @Test
+    fun `sourdough name starts with space`() {
+        assertFailsWith<SourdoughNameInvalid> {
+            InputValidator.validateSourdoughName(" abc")
+        }
+    }
+
+    @Test
+    fun `sourdough name ends with space`() {
+        assertFailsWith<SourdoughNameInvalid> {
+            InputValidator.validateSourdoughName("abc ")
+        }
+    }
+
+    @Test
+    fun `sourdough name has unallowed signs`() {
+        val invalidSourdoughNames = listOf(
+            "Œgart",
+            "Pablo-123",
+            "max mustermann",
+            "john@doe",
+            "name!",
+            "name#",
+            "name/"
+        )
+
+        invalidSourdoughNames.forEach { sourdoughName ->
+            assertFailsWith<SourdoughNameInvalid> {
+                InputValidator.validateSourdoughName(sourdoughName)
+            }
+        }
+    }
+
+    @Test
+    fun `sourdough name is too short`() {
+        assertFailsWith<SourdoughNameInvalid> {
+            InputValidator.validateSourdoughName("a".repeat(2))
+        }
+
+    }
+
+    @Test
+    fun `sourdough name is too long`() {
+        assertFailsWith<SourdoughNameInvalid> {
+            InputValidator.validateSourdoughName("a".repeat(31))
+        }
+    }
+
+    @Test
+    fun `sourdough name is blank`() {
+        assertFailsWith<SourdoughNameInvalid> {
+            InputValidator.validateSourdoughName("")
         }
     }
 }

@@ -1,5 +1,6 @@
 package app.sotchi.service
 
+import app.sotchi.domain.exception.SourdoughNotFoundException
 import app.sotchi.domain.sourdough.SourdoughEntity
 import app.sotchi.dto.analytics.SourdoughCreatedEvent
 import app.sotchi.dto.analytics.SourdoughDeletedEvent
@@ -8,12 +9,10 @@ import app.sotchi.dto.analytics.SourdoughUpdatedEvent
 import app.sotchi.dto.sourdough.*
 import app.sotchi.messaging.EventPublisher
 import app.sotchi.repository.SourdoughRepository
-import app.sotchi.repository.UserRepository
 import kotlin.time.Clock
 
 class SourdoughService(
-    private val sourdoughRepository: SourdoughRepository,
-    private val eventPublisher: EventPublisher
+    private val sourdoughRepository: SourdoughRepository, private val eventPublisher: EventPublisher
 ) {
     /**
      * Business logic for: User creates a new sourdough.
@@ -38,8 +37,20 @@ class SourdoughService(
      * User modifies their sourdough
      */
     fun update(dto: SourdoughUpdateDTO, userId: Int): Boolean {
+        val existingSourdough = sourdoughRepository.findById(dto.id) ?: throw SourdoughNotFoundException()
+
+        if (dto.name != null) {
+            InputValidator.validateSourdoughName(dto.name)
+        }
+
+        val updatedSourdough = existingSourdough.copy(
+            sourdoughName = dto.name ?: existingSourdough.sourdoughName,
+            flourType = dto.flourType ?: existingSourdough.flourType,
+            liquidType = dto.liquidType ?: existingSourdough.liquidType
+        )
+        sourdoughRepository.save(updatedSourdough)
         eventPublisher.publish(SourdoughUpdatedEvent(userId = userId, sourdoughId = dto.id))
-        TODO("Not yet implemented")
+        return true
     }
 
     /**
@@ -55,21 +66,22 @@ class SourdoughService(
      * User feeds their sourdough
      */
     fun feed(dto: SourdoughFeedDTO, userId: Int): Boolean {
+        sourdoughRepository.feed(dto.id, dto.fedAtDt)
         eventPublisher.publish(SourdoughFedEvent(userId = userId, sourdoughId = dto.id))
-        TODO("Not yet implemented")
+        return true
     }
 
     /**
      * User wants to see all of their sourdoughs
      */
     fun readAll(userId: Int): List<SourdoughEntity> {
-        TODO("Not yet implemented")
+        return sourdoughRepository.findAllPerUser(userId) ?: throw SourdoughNotFoundException()
     }
 
     /**
      * User wants to see one specific sourdough
      */
-    fun read(dto: SourdoughReadDTO, userId: Int): SourdoughEntity {
-        TODO("Not yet implemented")
+    fun read(dto: SourdoughReadDTO): SourdoughEntity {
+        return sourdoughRepository.findById(dto.id) ?: throw SourdoughNotFoundException()
     }
 }

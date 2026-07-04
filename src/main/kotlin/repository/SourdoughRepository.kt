@@ -1,6 +1,7 @@
 package app.sotchi.repository
 
 import app.sotchi.domain.sourdough.SourdoughEntity
+import kotlin.time.Instant
 
 
 interface SourdoughRepository {
@@ -8,5 +9,5 @@ interface SourdoughRepository {
     fun findById(sourdoughId: Int): SourdoughEntity?
     fun save(sourdoughEntity: SourdoughEntity): SourdoughEntity
     fun delete(sourdoughId: Int): Boolean
-    fun feed(sourdoughId: Int): SourdoughEntity
+    fun feed(sourdoughId: Int, sourdoughFedAtDt: Instant): SourdoughEntity
 }

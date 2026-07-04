@@ -1,5 +1,6 @@
 package app.sotchi.service
 
+import app.sotchi.domain.exception.SourdoughNameInvalid
 import app.sotchi.domain.exception.UserEmailInvalid
 import app.sotchi.domain.exception.UserNameInvalid
 import app.sotchi.domain.exception.UserPasswordInvalid
@@ -56,6 +57,24 @@ object InputValidator {
             throw UserNameInvalid("Username must not start or end with empty spaces")
         } else if (!hasOnlyAsciiChars) {
             throw UserNameInvalid("Username must only contain ASCII characters")
+        }
+    }
+
+    /**
+     * Validates that the user tries to set a valid / invalid sourdough name
+     * @param sourdoughName: User defined sourdough name
+     * @return Sourdough name is valid (true) or invalid (false)
+     */
+    fun validateSourdoughName(sourdoughName: String) {
+        val sourdoughLength = sourdoughName.length
+        val hasOnlyAsciiChars = Regex("^[a-zA-Z0-9]*$").containsMatchIn(sourdoughName)
+
+        if (sourdoughLength !in 3..30) {
+            throw SourdoughNameInvalid("Sourdough name must contain at least 3 and at most 30 characters")
+        } else if (sourdoughName.startsWith(" ") || sourdoughName.endsWith(" ")) {
+            throw SourdoughNameInvalid("Sourdough name must not start or end with empty spaces")
+        } else if (!hasOnlyAsciiChars) {
+            throw SourdoughNameInvalid("Sourdough name must only contain ASCII characters")
         }
     }
 }
