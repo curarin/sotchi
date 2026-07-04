@@ -1,5 +1,6 @@
 package app.sotchi.service
 
+import app.sotchi.domain.exception.SourdoughNotFoundException
 import app.sotchi.domain.sourdough.SourdoughEntity
 import app.sotchi.dto.analytics.SourdoughCreatedEvent
 import app.sotchi.dto.analytics.SourdoughDeletedEvent
@@ -36,8 +37,20 @@ class SourdoughService(
      * User modifies their sourdough
      */
     fun update(dto: SourdoughUpdateDTO, userId: Int): Boolean {
+        val existingSourdough = sourdoughRepository.findById(dto.id) ?: throw SourdoughNotFoundException()
+
+        if (dto.name != null) {
+            InputValidator.validateSourdoughName(dto.name)
+        }
+
+        val updatedSourdough = existingSourdough.copy(
+            sourdoughName = dto.name ?: existingSourdough.sourdoughName,
+            flourType = dto.flourType ?: existingSourdough.flourType,
+            liquidType = dto.liquidType ?: existingSourdough.liquidType
+        )
+        sourdoughRepository.save(updatedSourdough)
         eventPublisher.publish(SourdoughUpdatedEvent(userId = userId, sourdoughId = dto.id))
-        TODO("Not yet implemented")
+        return true
     }
 
     /**
