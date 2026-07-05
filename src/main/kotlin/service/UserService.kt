@@ -147,9 +147,14 @@ class UserService(
     /**
      * Reads data from an existing account.
      */
-    fun read(dto: UserReadDTO): UserEntity {
+    fun read(dto: UserReadDTO): UserProfileDTO {
         val readUser = userRepository.findById(dto.id) ?: throw UserNotFoundException()
         LOGGER.info("[read] User Profile returned for: ${readUser.id}")
-        return readUser
+        return UserProfileDTO(
+            name = readUser.name,
+            email = readUser.email,
+            createdAtDt = readUser.createdAtDt,
+            isActivated = readUser.isActivated
+        )
     }
 }
