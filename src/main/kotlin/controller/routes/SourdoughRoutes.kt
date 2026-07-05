@@ -17,6 +17,7 @@ import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.application
 
 fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
     rateLimit(RateLimitName("protected")) {
@@ -29,6 +30,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
                 val dto = call.receive<SourdoughCreateDTO>()
                 val user = call.principal<JWTPrincipal>()
                 val userId = user!!.payload.getClaim("userId").asInt()
+                application.environment.log.info("UserId $userId creates sourdough '${dto.name}'")
                 sourdoughService.create(dto, userId)
                 call.respond(HttpStatusCode.Created)
             }
@@ -41,6 +43,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
                 val dto = call.receive<SourdoughDeleteDTO>()
                 val user = call.principal<JWTPrincipal>()
                 val userId = user!!.payload.getClaim("userId").asInt()
+                application.environment.log.info("UserId $userId deletes sourdough '${dto.id}'")
                 sourdoughService.delete(dto, userId)
                 call.respond(HttpStatusCode.OK)
             }
@@ -53,6 +56,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
                 val dto = call.receive<SourdoughUpdateDTO>()
                 val user = call.principal<JWTPrincipal>()
                 val userId = user!!.payload.getClaim("userId").asInt()
+                application.environment.log.info("UserId $userId updates sourdough '${dto.id}'")
                 val sourdoughIsModified = sourdoughService.update(dto, userId)
                 call.respond(HttpStatusCode.OK, sourdoughIsModified)
             }
@@ -63,6 +67,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
             get<Sourdough.Read> {
                 call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
                 val dto = call.receive<SourdoughReadDTO>()
+                application.environment.log.info("Sourdough '${dto.id}' requested")
                 val foundSourdough = sourdoughService.read(dto)
                 call.respond(HttpStatusCode.OK, foundSourdough)
             }
@@ -73,6 +78,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
             get<Sourdough.ReadAll> {
                 val user = call.principal<JWTPrincipal>()
                 val userId = user!!.payload.getClaim("userId").asInt()
+                application.environment.log.info("UserId $userId requests all their sourdoughs")
                 val foundSourdoughs = sourdoughService.readAll(userId)
                 call.respond(HttpStatusCode.OK, foundSourdoughs)
             }
@@ -84,6 +90,7 @@ fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
                 val user = call.principal<JWTPrincipal>()
                 val dto = call.receive<SourdoughFeedDTO>()
                 val userId = user!!.payload.getClaim("userId").asInt()
+                application.environment.log.info("UserId $userId feeds sourdough '${dto.id}'")
                 sourdoughService.feed(dto, userId)
                 call.respond(HttpStatusCode.OK)
             }
