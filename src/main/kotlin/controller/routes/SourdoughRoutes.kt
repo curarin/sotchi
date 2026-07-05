@@ -3,121 +3,90 @@ package app.sotchi.controller.routes
 import app.sotchi.controller.resources.Sourdough
 import app.sotchi.dto.sourdough.SourdoughCreateDTO
 import app.sotchi.dto.sourdough.SourdoughDeleteDTO
+import app.sotchi.dto.sourdough.SourdoughFeedDTO
+import app.sotchi.dto.sourdough.SourdoughReadDTO
+import app.sotchi.dto.sourdough.SourdoughUpdateDTO
 import app.sotchi.service.SourdoughService
 import io.ktor.http.*
+import io.ktor.http.content.CachingOptions
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.cachingheaders.caching
 import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
-import kotlin.text.toIntOrNull
 
 fun Route.sourdoughRoutesV1(sourdoughService: SourdoughService) {
     rateLimit(RateLimitName("protected")) {
-        /**
-         * User creates a new sourdough.
-         */
-        post<Sourdough> {
-            val dto = call.receive<SourdoughCreateDTO>()
+        authenticate("auth-jwt") {
+            /**
+             * User creates a new sourdough
+             */
+            post<Sourdough.Create> {
+                call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
+                val dto = call.receive<SourdoughCreateDTO>()
+                val user = call.principal<JWTPrincipal>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                sourdoughService.create(dto, userId)
+                call.respond(HttpStatusCode.Created)
+            }
 
-            // ToDo: Auth / JWT Implementierung > userID wird dann von dort geholt
-            val userId =
-                call.request.headers["user-id"]?.toIntOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
-            val createdSourdough = sourdoughService.create(dto = dto, userId = userId)
-            call.respond(
-                createdSourdough,
-            )
-        }
+            /**
+             * User deletes their existing sourdough
+             */
+            delete<Sourdough.Delete> {
+                call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
+                val dto = call.receive<SourdoughDeleteDTO>()
+                val user = call.principal<JWTPrincipal>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                sourdoughService.delete(dto, userId)
+                call.respond(HttpStatusCode.OK)
+            }
 
-        /**
-         * User retrieves data of all of his sourdoughs.
-         */
-        get<Sourdough> { sourdough ->
-            val sortParam = sourdough.sort
-            call.respondText(
-                text = "These are all of your sourdoughs -> sorted by: $sortParam", status = HttpStatusCode.OK
-            )
-        }
+            /**
+             * User updates their existing sourdough
+             */
+            patch<Sourdough.Update> {
+                call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
+                val dto = call.receive<SourdoughUpdateDTO>()
+                val user = call.principal<JWTPrincipal>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                val sourdoughIsModified = sourdoughService.update(dto, userId)
+                call.respond(HttpStatusCode.OK, sourdoughIsModified)
+            }
 
-        /**
-         * User retrieves data of all available sourdough containers.
-         * Examples: Glass, Jar,...
-         */
-        get<Sourdough.Container> { sourdough ->
-            val sortParam = sourdough.sort
-            call.respondText(
-                text = "These are all of our available sourdough containers -> sorted by: $sortParam",
-                status = HttpStatusCode.OK
-            )
-        }
+            /**
+             * User reads one specific existing sourdough
+             */
+            get<Sourdough.Read> {
+                call.caching = CachingOptions(CacheControl.NoStore(visibility = CacheControl.Visibility.Private))
+                val dto = call.receive<SourdoughReadDTO>()
+                val foundSourdough = sourdoughService.read(dto)
+                call.respond(HttpStatusCode.OK, foundSourdough)
+            }
 
-        /**
-         * User retrieves data of one specific sourdough.
-         */
-        get<Sourdough.Id> { sourdough ->
-            val sourdoughId = sourdough.id
-            call.respondText(
-                text = "Here comes the data for your sourdough with id: $sourdoughId", status = HttpStatusCode.OK
-            )
-        }
+            /**
+             * User reads all of their existing sourdoughs
+             */
+            get<Sourdough.ReadAll> {
+                val user = call.principal<JWTPrincipal>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                val foundSourdoughs = sourdoughService.readAll(userId)
+                call.respond(HttpStatusCode.OK, foundSourdoughs)
+            }
 
-        /**
-         * User modifies data of one specific sourdough.
-         */
-        patch<Sourdough.Id> { sourdough ->
-            val sourdoughId = sourdough.id
-            call.respondText(
-                text = "You modified the sourdough with id: $sourdoughId", status = HttpStatusCode.OK
-            )
-
-        }
-
-        /**
-         * User deletes one specific sourdough.
-         */
-        delete<Sourdough.Id> { sourdough ->
-            val dto = SourdoughDeleteDTO(
-                id = sourdough.id
-            )
-
-            val userId =
-                call.request.headers["user-id"]?.toIntOrNull() ?: return@delete call.respond(HttpStatusCode.BadRequest)
-            val deletedSourdough = sourdoughService.delete(dto, userId)
-            call.respond(deletedSourdough)
-        }
-
-        /**
-         * User feeds one specific sourdough.
-         */
-        post<Sourdough.Id.Feed> { sourdough ->
-            val sourdoughId = sourdough.parent.id
-            call.respondText(
-                text = "You just fed your sourdough with id: $sourdoughId", status = HttpStatusCode.OK
-            )
-        }
-
-        /**
-         * User retrieves the current feeding state of one specific sourdough.
-         * Examples: JUST_FED, HUNGRY, STARVING,...
-         */
-        get<Sourdough.Id.FeedState> { sourdough ->
-            val sourdoughId = sourdough.parent.id
-            call.respondText(
-                text = "These are all feeding states for your sourdough with id: $sourdoughId",
-                status = HttpStatusCode.OK
-            )
-        }
-
-        /**
-         * User retrieves the feeding log of one specific sourdough.
-         */
-        get<Sourdough.Id.FeedLog> { sourdough ->
-            val sourdoughId = sourdough.parent.id
-            val sort = sourdough.parent.parent.sort
-            call.respondText(
-                text = "You fed your sourdough with id $sourdoughId on these days: Monday, Tuesday, Saturday - LAST YEAR!!11 -> sorting order: $sort",
-                status = HttpStatusCode.OK
-            )
+            /**
+             * User feeds one of their existing sourdoughs
+             */
+            post<Sourdough.Feed> {
+                val user = call.principal<JWTPrincipal>()
+                val dto = call.receive<SourdoughFeedDTO>()
+                val userId = user!!.payload.getClaim("userId").asInt()
+                sourdoughService.feed(dto, userId)
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
