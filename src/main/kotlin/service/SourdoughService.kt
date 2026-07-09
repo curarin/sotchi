@@ -74,14 +74,36 @@ class SourdoughService(
     /**
      * User wants to see all of their sourdoughs
      */
-    fun readAll(userId: Int): List<SourdoughEntity> {
-        return sourdoughRepository.findAllPerUser(userId) ?: throw SourdoughNotFoundException()
+    fun readAll(userId: Int): List<SourdoughProfileDTO> {
+        val foundSourdoughs = sourdoughRepository.findAllPerUser(userId) ?: throw SourdoughNotFoundException()
+        return foundSourdoughs.map { foundSourdough ->
+            SourdoughProfileDTO(
+                id = foundSourdough.id!!,
+                flourType = foundSourdough.flourType,
+                liquidType = foundSourdough.liquidType,
+                sourdoughName = foundSourdough.sourdoughName,
+                createdAtDt = foundSourdough.createdAtDt,
+                lastModifiedAtDt = foundSourdough.lastModifiedAtDt,
+                healthState = foundSourdough.healthState,
+                lastFedAtDt = foundSourdough.lastFedAtDt,
+            )
+        }
     }
 
     /**
      * User wants to see one specific sourdough
      */
-    fun read(dto: SourdoughReadDTO): SourdoughEntity {
-        return sourdoughRepository.findById(dto.id) ?: throw SourdoughNotFoundException()
+    fun read(dto: SourdoughReadDTO): SourdoughProfileDTO {
+        val foundSourdough = sourdoughRepository.findById(dto.id) ?: throw SourdoughNotFoundException()
+        return SourdoughProfileDTO(
+            id = foundSourdough.id!!,
+            flourType = foundSourdough.flourType,
+            liquidType = foundSourdough.liquidType,
+            sourdoughName = foundSourdough.sourdoughName,
+            createdAtDt = foundSourdough.createdAtDt,
+            lastModifiedAtDt = foundSourdough.lastModifiedAtDt,
+            healthState = foundSourdough.healthState,
+            lastFedAtDt = foundSourdough.lastFedAtDt,
+        )
     }
 }

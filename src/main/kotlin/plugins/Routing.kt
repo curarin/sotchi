@@ -1,6 +1,5 @@
 package app.sotchi.plugins
 
-import app.sotchi.controller.routes.genericRoutesV1
 import app.sotchi.controller.routes.healthRouteV1
 import app.sotchi.controller.routes.sourdoughRoutesV1
 import app.sotchi.controller.routes.userRoutesV1
@@ -37,7 +36,6 @@ fun Application.configureRouting() {
         route("/api/v1") {
             healthRouteV1()
             userRoutesV1(userService)
-            genericRoutesV1()
             sourdoughRoutesV1(sourdoughService)
         }
         swaggerUI("/swagger") {
