@@ -39,3 +39,18 @@ If the server starts successfully, you'll see the following output:
 2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
 ```
 
+### Docker Build & Run
+Build from root:
+```
+docker build -f docker/Dockerfile -t sotchi .
+```
+
+Run from root:
+```
+docker run -d -p 8080:8080 sotchi
+```
+
+Stop:
+```
+docker stop <container_name>
+```
