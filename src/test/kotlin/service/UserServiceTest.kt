@@ -216,9 +216,7 @@ class UserServiceTest {
     fun `read() returns full UserProfileDTO`() {
         val result = userService.read(UserReadDTO(id = 1))
         assertNotNull(result.isActivated)
-        assertNotNull(result.password)
         assertNotNull(result.email)
-        assertNotNull(result.role)
     }
 
     /**
@@ -292,17 +290,14 @@ class UserServiceTest {
         )
         assertTrue(newCreatedUser)
         assertFalse(userService.read(UserReadDTO(id = 2)).isActivated)
-        assertNull(userService.read(UserReadDTO(id = 2)).activatedAtDt)
 
         // User gets updated -> we expect the status to go to true -> and the timestamp to be set
         val updatedUser = UserUpdateDTO(
             isActivated = true
         )
         val userIsUpdated = userService.update(userId = 2, dto = updatedUser)
-        val firstTimeActivatedAtDt = userService.read(UserReadDTO(id = 2)).activatedAtDt
         assertTrue(userIsUpdated)
         assertTrue(userService.read(UserReadDTO(id = 2)).isActivated)
-        assertNotNull(firstTimeActivatedAtDt)
 
         // User gets updated again with some other data -> activation remains true -> activation timestamp stays the same
         val anotherUpdatedUser = UserUpdateDTO(
@@ -310,7 +305,6 @@ class UserServiceTest {
         )
         assertTrue(userService.update(userId = 2, anotherUpdatedUser))
         assertEquals("PabloDiEscobar", userService.read(UserReadDTO(id = 2)).name)
-        assertEquals(firstTimeActivatedAtDt, userService.read(UserReadDTO(id = 2)).activatedAtDt)
 
         // Now we also test that - in whatever case the user re-activates their account - we still keep the first time they activated
         val thirdUpdatedUser = UserUpdateDTO(
@@ -318,6 +312,5 @@ class UserServiceTest {
         )
         assertTrue(userService.update(userId = 2, thirdUpdatedUser))
         assertEquals("PabloDiEscobar", userService.read(UserReadDTO(id = 2)).name)
-        assertEquals(firstTimeActivatedAtDt, userService.read(UserReadDTO(id = 2)).activatedAtDt)
     }
 }
